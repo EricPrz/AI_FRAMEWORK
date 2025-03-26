@@ -1,4 +1,5 @@
 import ctypes
+import pickle
 import platform
 
 os = platform.system()
@@ -15,6 +16,8 @@ import time
 
 # Ensure the function returns a POINTER to float
 lib.getMaxPool2D.restype = ctypes.POINTER(ctypes.c_float)
+
+lib.getSects.restype = ctypes.POINTER(ctypes.c_float)
 
 class Tensor(object):
     def __init__(self, data, creators=None, creation_op=None, autograd=True, is_parameter=False):
@@ -176,6 +179,13 @@ class Module:
                 self.parameters.append(pars)
         del temp
         return self.parameters
+
+    def save(self, fileName):
+        # Save the object to a file
+        with open(fileName+'.pkl', 'wb') as file:
+            pickle.dump(self, file)
+
+        print("Object saved successfully.")
     
 class Optimizer(object):
     def __init__(self, params):
@@ -198,7 +208,7 @@ class Adagrad(Optimizer):
             param.data = param.data - self.lr / np.sqrt(self.G[j] + self.epsilon) * param.gradient.data
 
             if self.autoZero:
-                param.gradient.data = None
+                param.gradient.data *= 0
 
 class Adadelta(Optimizer):
     def __init__(self, params, lr = 1, gamma = 0.9, epsilon = 1e-6, autoZero = True):
@@ -227,7 +237,7 @@ class Adadelta(Optimizer):
             param.data = param.data - self.lr * xt
 
             if self.autoZero:
-                param.gradient.data = None    
+                param.gradient.data *= 0    
 
 class Adam(Optimizer):
     def __init__(self, params, lr = 0.0025, gamma_m = 0.9, gamma_v = 0.999, epsilon = 1e-6, autoZero = True):
@@ -255,7 +265,7 @@ class Adam(Optimizer):
             param.data = param.data - self.lr / (np.sqrt(self.vc_t[j]) + self.epsilon) * self.mc_t[j]
 
             if self.autoZero:
-                param.gradient.data = None   
+                param.gradient.data *= 0
 
 class SGD(Optimizer):
     def __init__(self, params, lr = 0.01, momentum = True, gamma = 0.9, autoZero = True):
@@ -283,7 +293,7 @@ class SGD(Optimizer):
                 param.data = param.data - self.lr * param.gradient.data 
 
             if self.autoZero:
-                param.gradient.data = None
+                param.gradient.data *= 0
 
 
 
@@ -430,25 +440,6 @@ class Conv2d(Layer):
             self.parameters.append(self.bias)
 
     def get_sects(self, x:Tensor):
-        """        
-        n = (x.shape[2] + 2 * self.padding - self.dilation * (self.kernel_size - 1) - 1) / self.stride + 1
-        if n % 1 != 0:
-            raise Exception("No valid convolution parameters")
-        n = int(n)
-        self.n = n
-
-        self.N = x.shape[0]
-        self.chs = x.shape[1]
-        self.dims = x.shape[2]
-
-        sects = np.zeros(shape=(self.N, self.chs, n, n, self.kernel_size, self.kernel_size), dtype=np.float32)
-        self.pos = np.zeros(shape=(self.N, self.chs, n * n, self.kernel_size * self.kernel_size), dtype=np.int32)
-
-        lib.setSects(x.data.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), sects.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), self.pos.ctypes.data_as(ctypes.POINTER(ctypes.c_int)), self.N, self.chs, self.n, self.dims, self.stride, self.kernel_size, self.dilation)
-        #print(self.pos)
-        return Tensor(sects.reshape((x.shape[0] * n * n, self.kernel_size * self.kernel_size * self.in_channels)), creators=[self, x], creation_op="get_sects")
-
-        """
 
         n = (x.shape[2] + 2 * self.padding - self.dilation * (self.kernel_size - 1) - 1) / self.stride + 1
         
@@ -478,6 +469,66 @@ class Conv2d(Layer):
 
         return Tensor(sects.reshape((x.shape[0] * n * n, self.kernel_size * self.kernel_size * self.in_channels)), creators=[self, x], creation_op="get_sects")
  
+
+
+
+    def forward(self, x:Tensor):
+        sects = self.get_sects(x)
+        mm = sects.dot(self.weights).reshape((x.shape[0], self.out_channels, self.n, self.n))
+        
+        if self.hasBias:
+            return mm + self.bias
+        else:
+            return mm
+
+
+
+
+
+
+class Conv2dC(Layer):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, bias=True):
+        super().__init__()
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.dilation = dilation
+
+        xavier_range = np.sqrt(6 / (in_channels + out_channels))
+        self.weights = Tensor(np.random.uniform(-xavier_range, xavier_range, size=(kernel_size * kernel_size * in_channels, out_channels)), is_parameter=True)
+        self.parameters.append(self.weights)
+
+        self.hasBias = bias
+
+        if bias:
+            self.bias = Tensor(np.zeros(out_channels), is_parameter=True)
+            self.parameters.append(self.bias)
+
+    def get_sects(self, x:Tensor):
+           
+        n = (x.shape[2] + 2 * self.padding - self.dilation * (self.kernel_size - 1) - 1) / self.stride + 1
+        if n % 1 != 0:
+            raise Exception("No valid convolution parameters")
+        n = int(n)
+        self.n = n
+
+        self.N = x.shape[0]
+        self.chs = x.shape[1]
+        self.dims = x.shape[2]
+
+        self.pos = np.zeros(shape=(self.N, self.chs, n * n, self.kernel_size * self.kernel_size), dtype=np.int32)
+
+        sects_ptr = lib.getSects(x.data.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), self.pos.ctypes.data_as(ctypes.POINTER(ctypes.c_int)), self.N, self.chs, self.n, self.dims, self.stride, self.kernel_size, self.dilation)
+        
+        sects = np.ctypeslib.as_array(sects_ptr, shape=(x.data.shape[0], self.in_channels, self.n, self.n, self.kernel_size, self.kernel_size))
+
+        return Tensor(sects.reshape((x.shape[0] * n * n, self.kernel_size * self.kernel_size * self.in_channels)), creators=[self, x], creation_op="get_sects")
+
+        
+
 
 
 

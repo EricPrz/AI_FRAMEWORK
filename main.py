@@ -2,9 +2,10 @@ import framework as fm
 import pandas as pd
 import numpy as np
 import time
+import pickle
 
-train = pd.read_csv("./mnist_train.csv")
-test = pd.read_csv("./mnist_test.csv")
+train = pd.read_csv("./data/mnist_train.csv")
+test = pd.read_csv("./data/mnist_test.csv")
 
 # Reestructuring
 train_label, train_image = train["label"].to_numpy(), train[[x for x in train.columns if x != "label"]].to_numpy().reshape((-1, 1, 28, 28))/255
@@ -49,7 +50,17 @@ class Model(fm.Module):
         x = self.lin2.forward(x)
         return x
 
+
 model = Model()
+
+# Load the object back from the file
+#with open('prueba.pkl', 'rb') as file:
+#    model = pickle.load(file)
+
+#print("Object loaded successfully.")
+
+
+
 loss_fn = fm.CrossEntropy()
 #optim = fm.Adadelta(model.get_parameters())
 optim = fm.Adam(model.get_parameters())
@@ -57,7 +68,7 @@ optim = fm.Adam(model.get_parameters())
 
 batch_size = 128
 num_batches = int(len(train_label)/batch_size)
-epochs = 1
+epochs = 4
 
 init = time.time()
 for epoch in range(epochs):
@@ -116,3 +127,5 @@ for batch in range(num_batches):
         correct += (pred_nums == label_nums).sum()
 
 print("Accuracy:", correct / (batch_size * num_batches) * 100, "%")
+
+model.save("prueba")

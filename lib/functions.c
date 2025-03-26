@@ -98,6 +98,52 @@ void setSects(float *array, float *pooled, int *posarr, int N, int chs, int zone
   }  
 }
 
+float *getSects(float *array, int *posarr, int N, int chs, int zoneNumbers, int dim, int stride, int k_size, int dilation) {
+  // Allocate memory for pooled
+  float *pooled = (float *)malloc(N * chs * zoneNumbers * zoneNumbers * k_size * k_size * sizeof(float));
+  
+  // Precompute some values to avoid recalculating in each loop
+  int chs_dim_dim = chs * dim * dim;
+  int ch_zone_size = zoneNumbers * zoneNumbers * k_size * k_size;
+  int zone_size = zoneNumbers * k_size * k_size;
+
+  for (int n = 0; n < N; n++) {
+    for (int ch = 0; ch < chs; ch++) {
+      for (int j = 0; j < zoneNumbers; j++) {
+        for (int i = 0; i < zoneNumbers; i++) {
+          // Get starting position
+          int base_y = j * stride;
+          int base_x = i * stride;
+
+          for (int y = 0; y < k_size; y++) {
+            for (int x = 0; x < k_size; x++) {
+              int idx_y = base_y + y * dilation;
+              int idx_x = base_x + x * dilation;
+
+              int pos = (n * chs_dim_dim) + (ch * dim * dim) + (idx_y * dim) + idx_x;
+
+              // Precompute pooledPos to avoid redundant calculation
+              int pooledPos = (n * chs * ch_zone_size) 
+                               + (ch * ch_zone_size) 
+                               + (j * zone_size) 
+                               + (i * k_size * k_size) 
+                               + (y * k_size) 
+                               + x;
+              
+              // Use pointer arithmetic for faster memory access
+              pooled[pooledPos] = array[pos];
+              posarr[pooledPos] = pos;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return pooled;
+}
+
+
 void cleanPtr(float *ptr) {
   if (ptr != NULL) {
     free(ptr);  // Free the allocated memory

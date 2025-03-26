@@ -20,12 +20,29 @@ class Model(fm.Module):
         return x
 
 
+class ModelC(fm.Module):
+    def __init__(self):
+        super().__init__()
+        self.maxpool1 = fm.Conv2dC(1, 1, 2, 1, bias=False)
+
+    def forward(self, x):
+        init = time.time()
+        x = self.maxpool1.forward(x)
+        print("Maxpool C forward Time:", time.time() - init)
+        return x
+
+
 model = Model()
 model.maxpool1.weights.data = np.ones_like(model.maxpool1.weights.data)
 loss_fn = fm.MSE()
 
+modelC = ModelC()
+modelC.maxpool1.weights.data = np.ones_like(model.maxpool1.weights.data)
+
+
 
 pred = model.forward(inpt)
+predC = modelC.forward(inpt)
 
 loss = loss_fn.forward(pred, fm.Tensor(np.ones_like(pred.data)))
 
