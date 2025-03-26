@@ -1,5 +1,5 @@
 .vscode
-NN\.venv
-NN\__pycache__
-NN\data
-Drawing\node_modules
+.venv/
+__pycache__/
+data/
+node_modules/
