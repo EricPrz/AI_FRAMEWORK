@@ -34,17 +34,21 @@ function App() {
     const result = pixels.map((row, rowIndex) => {
       return row.map((value, colIndex) => {
         
-        if (rowIndex == yPix && colIndex == xPix){
-          return Math.min(1, value + 0.3)
-        }
+        // if (rowIndex == yPix && colIndex == xPix){
+        //   return Math.min(1, value + 0.3)
+        // }
 
-        if (Math.abs(rowIndex - yPix)**2 + Math.abs(colIndex - xPix)**2 <= paintRadius){
-          const xDist = Math.abs(x - (colIndex * xPixSize + xPixSize / 2)) 
-          const yDist = Math.abs(y - (rowIndex * yPixSize + yPixSize / 2)) 
+        // if (Math.abs(rowIndex - yPix)**2 + Math.abs(colIndex - xPix)**2 <= paintRadius){
+        //   const xDist = Math.abs(x - (colIndex * xPixSize + xPixSize / 2)) 
+        //   const yDist = Math.abs(y - (rowIndex * yPixSize + yPixSize / 2)) 
           
-          const dist = Math.sqrt(xDist**2 + yDist**2)
+        //   const dist = Math.sqrt(xDist**2 + yDist**2)
 
-          return Math.min(value + Math.abs(dist - xPixSize) / xPixSize, 1)
+        //   return Math.min(value + Math.abs(dist - xPixSize) / xPixSize, 1)
+        // }
+
+        if (rowIndex-yPix <= 1 && rowIndex - yPix >= 0 && colIndex-xPix <= 1 && colIndex - xPix >= 0){
+          return 1
         }
 
         return value
