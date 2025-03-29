@@ -115,8 +115,7 @@ class Tensor(object):
             new_gradient[idxs] += self.gradient.data.flatten()
             
             x.backward(Tensor(new_gradient))
-
-        del gradient    
+ 
 
             
 
