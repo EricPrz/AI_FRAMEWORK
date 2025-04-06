@@ -1,4 +1,6 @@
 import ctypes
+import numpy as np
+import time
 import pickle
 import platform
 
@@ -8,11 +10,6 @@ if os == "Windows":
     lib = ctypes.CDLL("./lib/functions.exe")
 elif os == "Linux":
     lib = ctypes.CDLL("./lib/functions.so")
-
-
-
-import numpy as np
-import time
 
 # Ensure the function returns a POINTER to float
 lib.getMaxPool2D.restype = ctypes.POINTER(ctypes.c_float)
@@ -58,6 +55,9 @@ class Tensor(object):
         elif self.creation_op == "mul":
             self.creators[0].backward(self.gradient * self.creators[1])
             self.creators[1].backward(self.gradient * self.creators[0])
+        elif self.creation_op == "div":
+            self.creators[0].backward(self.gradient / self.creators[1])
+            self.creators[1].backward(self.gradient * self.creators[0] / -(self.creators[1]**2))
         elif self.creation_op == "relu":
             self.creators[0].backward(Tensor(self.gradient.data * (self.creators[0].data > 0)))
         elif self.creation_op == "get_sects":      
@@ -116,7 +116,7 @@ class Tensor(object):
             
             x.backward(Tensor(new_gradient))
  
-
+        del self
             
 
 
@@ -135,6 +135,9 @@ class Tensor(object):
     
     def __mul__(self, other):
         return Tensor(self.data * other.data, creators=[self, other], creation_op="mul")
+
+    def __truediv__(self, other):
+        return Tensor(self.data * other.data, creators=[self, other], creation_op="div")
     
     def __pow__(self, exponent):
         if not isinstance(exponent, Tensor):
@@ -162,6 +165,7 @@ class Tensor(object):
 class Module:
     def __init__(self):
         self.parameters = list()
+        self.training = False
 
     def get_super_atributes(self):
         return set(dir(super()))
@@ -178,6 +182,19 @@ class Module:
                 self.parameters.append(pars)
         del temp
         return self.parameters
+
+    def get_children(self):    
+        return [x for x in self.get_atributes() if isinstance(self.__dict__[x], Layer)]
+
+    def train(self):
+        self.training = True   
+        for module in self.get_children():
+            self.__dict__[module].training = True
+
+    def test(self):
+        self.training = False
+        for module in self.get_children():
+            module.training = False
 
     def save(self, fileName):
         # Save the object to a file
@@ -299,6 +316,7 @@ class SGD(Optimizer):
 class Layer(object):
     def __init__(self):
         self.parameters = list()
+        self.training = False
 
     def get_parameters(self):
         return self.parameters
@@ -366,7 +384,60 @@ class Linear(Layer):
             return mm + self.bias
         else:
             return mm
+
+class Dropout(Layer):
+    def __init__(self, pct):
+        super().__init__()
+        self.pct = pct
+
+    def forward(self, x:Tensor):
+        if not self.training:
+            return x
+
+        return x * Tensor(np.random.binomial(1, self.pct, x.shape))
+
+class BatchNorm(Layer):
+    def __init__(self, epsilon = 1e-5, momentum = 0.9):
+        super().__init__()
+        self.epsilon = epsilon
+        self.momentum = momentum
+
+        # Learnable parameters: scale (gamma) and shift (beta)
+        self.gamma = None
+        self.beta = None
         
+        # Running statistics for inference phase
+        self.running_mean = None
+        self.running_var = None
+
+    def forward(self, x:Tensor):
+
+        if self.gamma is None:
+            # Initialize scale (gamma) and shift (beta) for each feature (channel)
+            self.gamma = Tensor(np.ones((1, x.shape[1], 1, 1)), is_parameter=True)
+            self.beta = Tensor(np.zeros((1, x.shape[1], 1, 1)), is_parameter=True)
+            self.parameters.append(self.gamma)
+            self.parameters.append(self.beta)
+        
+        if self.running_mean is None:
+            # Initialize running mean and variance to zeros
+            self.running_mean = np.zeros(x.shape[1])
+            self.running_var = np.zeros(x.shape[1])
+        
+        if self.training:
+            mean = np.mean(x.data, axis=(0, 2, 3), keepdims=True)
+            var = np.var(x.data, axis=(0, 2, 3), keepdims=True)
+
+            self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * mean
+            self.running_var = self.momentum * self.running_var + (1 - self.momentum) * var
+
+            res = Tensor((x.data - mean)/(var + self.epsilon)**0.5) * self.gamma + self.beta  
+            print("res:", res.shape)
+            return res
+        else:
+            x_reshape = x.reshape((-1, x.shape[1]))
+            return ((x_reshape - self.running_mean)/(self.running_var + self.epsilon)**0.5 * self.gamma + self.beta).reshape(x.shape)
+
 class ReLu(Layer):
     def __init__(self):
         super().__init__()
