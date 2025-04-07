@@ -47,11 +47,11 @@ class Model(fm.Module):
     def forward(self, x):
         x = self.conv1.forward(x)
         x = self.relu1.forward(x)
-        #x = self.bn1.forward(x)
+        x = self.bn1.forward(x)
         x = self.maxpool1.forward(x)
         x = self.conv2.forward(x)
         x = self.relu2.forward(x)
-        #x = self.bn2.forward(x)
+        x = self.bn2.forward(x)
         x = self.maxpool2.forward(x)
         x = x.reshape((-1, 256))
         x = self.drop1.forward(x)

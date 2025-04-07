@@ -194,7 +194,8 @@ class Module:
     def test(self):
         self.training = False
         for module in self.get_children():
-            module.training = False
+            self.__dict__[module].training = True
+ 
 
     def save(self, fileName):
         # Save the object to a file
@@ -389,12 +390,15 @@ class Dropout(Layer):
     def __init__(self, pct):
         super().__init__()
         self.pct = pct
+        self.mask = None
 
     def forward(self, x:Tensor):
         if not self.training:
             return x
 
-        return x * Tensor(np.random.binomial(1, self.pct, x.shape))
+        if not self.mask:
+            self.mask = Tensor(np.random.binomial(1, self.pct, x.shape))
+        return x * self.mask
 
 class BatchNorm(Layer):
     def __init__(self, epsilon = 1e-5, momentum = 0.9):
@@ -405,6 +409,9 @@ class BatchNorm(Layer):
         # Learnable parameters: scale (gamma) and shift (beta)
         self.gamma = None
         self.beta = None
+
+        self.mean = None
+        self.var = None
         
         # Running statistics for inference phase
         self.running_mean = None
@@ -425,15 +432,13 @@ class BatchNorm(Layer):
             self.running_var = np.zeros(x.shape[1])
         
         if self.training:
-            mean = np.mean(x.data, axis=(0, 2, 3), keepdims=True)
-            var = np.var(x.data, axis=(0, 2, 3), keepdims=True)
+            self.mean = np.mean(x.data, axis=(0, 2, 3), keepdims=True)
+            self.var = np.var(x.data, axis=(0, 2, 3), keepdims=True)
 
-            self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * mean
-            self.running_var = self.momentum * self.running_var + (1 - self.momentum) * var
+            self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * self.mean
+            self.running_var = self.momentum * self.running_var + (1 - self.momentum) * self.var
 
-            res = Tensor((x.data - mean)/(var + self.epsilon)**0.5) * self.gamma + self.beta  
-            print("res:", res.shape)
-            return res
+            return ((x - Tensor(self.mean))/(Tensor(self.var) + Tensor(self.epsilon))**0.5) * self.gamma + self.beta  
         else:
             x_reshape = x.reshape((-1, x.shape[1]))
             return ((x_reshape - self.running_mean)/(self.running_var + self.epsilon)**0.5 * self.gamma + self.beta).reshape(x.shape)
