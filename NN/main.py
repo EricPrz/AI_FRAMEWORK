@@ -110,6 +110,10 @@ for epoch in range(epochs):
         if batch % int(num_batches/7) == 0:
             print(f"loss: {loss} [{(batch+1)*batch_size}/{batch_size*num_batches}]")   
         
+
+        
+
+
         loss_fn.backward()
         
         optim.step()

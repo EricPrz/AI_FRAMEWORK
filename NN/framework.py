@@ -60,6 +60,12 @@ class Tensor(object):
             self.creators[1].backward(self.gradient * self.creators[0] / -(self.creators[1]**2))
         elif self.creation_op == "relu":
             self.creators[0].backward(Tensor(self.gradient.data * (self.creators[0].data > 0)))
+        elif self.creation_op == "batchnorm":
+            creator = self.creators[0]
+            self.creators[1].backward(Tensor(self.gradient.data * creator.gamma.data / np.sqrt(creator.var + creator.epsilon)))
+            creator.gamma.backward(Tensor(self.gradient.data * (self.creators[1].data-creator.mean)/np.sqrt(creator.var + creator.epsilon)))
+            creator.beta.backward(self.gradient)
+
         elif self.creation_op == "get_sects":      
             """
             conv = self.creators[0]
@@ -417,6 +423,9 @@ class BatchNorm(Layer):
         self.running_mean = None
         self.running_var = None
 
+    def NormBatched(self, x:Tensor):
+        return Tensor((x.data - self.mean)/np.sqrt(self.var + self.epsilon) * self.gamma.data + self.beta.data, creation_op="batchnorm", creators=[self, x])
+
     def forward(self, x:Tensor):
 
         if self.gamma is None:
@@ -438,7 +447,7 @@ class BatchNorm(Layer):
             self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * self.mean
             self.running_var = self.momentum * self.running_var + (1 - self.momentum) * self.var
 
-            return ((x - Tensor(self.mean))/(Tensor(self.var) + Tensor(self.epsilon))**0.5) * self.gamma + self.beta  
+            return self.NormBatched(x)
         else:
             x_reshape = x.reshape((-1, x.shape[1]))
             return ((x_reshape - self.running_mean)/(self.running_var + self.epsilon)**0.5 * self.gamma + self.beta).reshape(x.shape)
