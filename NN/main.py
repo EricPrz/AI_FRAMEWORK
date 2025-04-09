@@ -33,30 +33,33 @@ class Model(fm.Module):
         super().__init__()
         self.conv1 = fm.Conv2d(1, 6, 5, 1, bias = False)
         self.relu1 = fm.ReLu()
-        self.bn1 = fm.BatchNorm()
+        self.bn1 = fm.BatchNorm(1)
+        
         self.maxpool1 = fm.MaxPool2d(2, 6, 2)
         self.conv2 = fm.Conv2d(6, 16, 5, 1, bias = False)
         self.relu2 = fm.ReLu()
-        self.bn2 = fm.BatchNorm()
+        self.bn2 = fm.BatchNorm(1)
         self.maxpool2 = fm.MaxPool2d(2, 16, 2)
-        self.drop1 = fm.Dropout(0.5)
-        self.lin1 = fm.Linear(256, 84)
-        self.drop2 = fm.Dropout(0.4)
-        self.lin2 = fm.Linear(84, 10)
+        self.dropout1 = fm.Dropout(0.5)
+
+        self.lin1 = fm.Linear(256, 84, bias=False)
+        self.dropout2 = fm.Dropout(0.5)
+        self.lin2 = fm.Linear(84, 10, bias=False)
+
 
     def forward(self, x):
-        x = self.conv1.forward(x)
+        x = self.conv1.forward(x) 
         x = self.relu1.forward(x)
         x = self.bn1.forward(x)
         x = self.maxpool1.forward(x)
         x = self.conv2.forward(x)
-        x = self.relu2.forward(x)
+        x = self.relu2.forward(x) 
         x = self.bn2.forward(x)
         x = self.maxpool2.forward(x)
         x = x.reshape((-1, 256))
-        x = self.drop1.forward(x)
+        x = self.dropout1.forward(x)
         x = self.lin1.forward(x) 
-        x = self.drop2.forward(x)
+        x = self.dropout2.forward(x)
         x = self.lin2.forward(x)
         return x
 

@@ -62,8 +62,9 @@ class Tensor(object):
             self.creators[0].backward(Tensor(self.gradient.data * (self.creators[0].data > 0)))
         elif self.creation_op == "batchnorm":
             creator = self.creators[0]
-            self.creators[1].backward(Tensor(self.gradient.data * creator.gamma.data / np.sqrt(creator.var + creator.epsilon)))
-            creator.gamma.backward(Tensor(self.gradient.data * (self.creators[1].data-creator.mean)/np.sqrt(creator.var + creator.epsilon)))
+            sqr = np.sqrt(creator.var + creator.epsilon)
+            self.creators[1].backward(Tensor(self.gradient.data * creator.gamma.data / sqr))
+            creator.gamma.backward(Tensor(self.gradient.data * (self.creators[1].data-creator.mean)/sqr))
             creator.beta.backward(self.gradient)
 
         elif self.creation_op == "get_sects":      
@@ -121,8 +122,7 @@ class Tensor(object):
             new_gradient[idxs] += self.gradient.data.flatten()
             
             x.backward(Tensor(new_gradient))
- 
-        del self
+
             
 
 
@@ -407,10 +407,11 @@ class Dropout(Layer):
         return x * self.mask
 
 class BatchNorm(Layer):
-    def __init__(self, epsilon = 1e-5, momentum = 0.9):
+    def __init__(self, axis = 2, epsilon = 1e-5, momentum = 0.9):
         super().__init__()
         self.epsilon = epsilon
         self.momentum = momentum
+        self.axis = axis
 
         # Learnable parameters: scale (gamma) and shift (beta)
         self.gamma = None
@@ -427,22 +428,26 @@ class BatchNorm(Layer):
         return Tensor((x.data - self.mean)/np.sqrt(self.var + self.epsilon) * self.gamma.data + self.beta.data, creation_op="batchnorm", creators=[self, x])
 
     def forward(self, x:Tensor):
+        self.ndim = x.data.ndim
+        self.axiss = tuple([x for x in range(x.data.ndim) if x != self.axis])
+        self.parr = tuple([1 if y != self.axis else x.data.shape[self.axis] for y in range(x.data.ndim)])
+
 
         if self.gamma is None:
             # Initialize scale (gamma) and shift (beta) for each feature (channel)
-            self.gamma = Tensor(np.ones((1, x.shape[1], 1, 1)), is_parameter=True)
-            self.beta = Tensor(np.zeros((1, x.shape[1], 1, 1)), is_parameter=True)
+            self.gamma = Tensor(np.ones(self.parr), is_parameter=True)
+            self.beta = Tensor(np.zeros(self.parr), is_parameter=True)
             self.parameters.append(self.gamma)
             self.parameters.append(self.beta)
         
         if self.running_mean is None:
             # Initialize running mean and variance to zeros
-            self.running_mean = np.zeros(x.shape[1])
-            self.running_var = np.zeros(x.shape[1])
+            self.running_mean = np.zeros(x.shape[self.axis])
+            self.running_var = np.zeros(x.shape[self.axis])
         
         if self.training:
-            self.mean = np.mean(x.data, axis=(0, 2, 3), keepdims=True)
-            self.var = np.var(x.data, axis=(0, 2, 3), keepdims=True)
+            self.mean = np.mean(x.data, self.axiss, keepdims=True)
+            self.var = np.var(x.data, self.axiss, keepdims=True)
 
             self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * self.mean
             self.running_var = self.momentum * self.running_var + (1 - self.momentum) * self.var
