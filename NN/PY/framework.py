@@ -446,8 +446,8 @@ class BatchNorm(Layer):
             self.running_var = np.zeros(x.shape[self.axis])
         
         if self.training:
-            self.mean = np.mean(x.data, self.axiss, keepdims=True)
-            self.var = np.var(x.data, self.axiss, keepdims=True)
+            self.mean = np.mean(x.data, self.axis, keepdims=True)
+            self.var = np.var(x.data, self.axis, keepdims=True)
 
             self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * self.mean
             self.running_var = self.momentum * self.running_var + (1 - self.momentum) * self.var
