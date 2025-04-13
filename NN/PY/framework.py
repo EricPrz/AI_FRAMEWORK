@@ -429,7 +429,6 @@ class BatchNorm(Layer):
 
     def forward(self, x:Tensor):
         self.ndim = x.data.ndim
-        self.axiss = tuple([x for x in range(x.data.ndim) if x != self.axis])
         self.parr = tuple([1 if y != self.axis else x.data.shape[self.axis] for y in range(x.data.ndim)])
 
 
@@ -446,15 +445,17 @@ class BatchNorm(Layer):
             self.running_var = np.zeros(x.shape[self.axis])
         
         if self.training:
-            self.mean = np.mean(x.data, self.axis, keepdims=True)
-            self.var = np.var(x.data, self.axis, keepdims=True)
+            x_reshaped = x.data.reshape((x.shape[self.axis], -1))
+            axis_np = self.axis if self.axis >= 1 else abs(self.axis - 1)
+            self.mean = np.mean(x_reshaped, axis_np).reshape((self.parr))
+            self.var = np.var(x_reshaped, axis_np).reshape((self.parr))
 
             self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * self.mean
             self.running_var = self.momentum * self.running_var + (1 - self.momentum) * self.var
 
             return self.NormBatched(x)
         else:
-            x_reshape = x.reshape((-1, x.shape[1]))
+            x_reshape = x.reshape((-1, self.axis))
             return ((x_reshape - self.running_mean)/(self.running_var + self.epsilon)**0.5 * self.gamma + self.beta).reshape(x.shape)
 
 class ReLu(Layer):
