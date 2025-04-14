@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <threads.h>
 #include <stdlib.h>
 
 float *getMaxPool2D(int dim0, int dim1, int dim2, int dim3, float *array,
@@ -32,7 +33,6 @@ float *getMaxPool2D(int dim0, int dim1, int dim2, int dim3, float *array,
             for (int x = 0; x < k_size; x++) {
               int idx_y = base_y + y * dilation;
               int idx_x = base_x + x * dilation;
-
               // Bounds check to avoid invalid memory access
               if (idx_y < dim2 && idx_x < dim3) {
                 int pos = N * dim1 * dim2 * dim3 + ch * dim2 * dim3 +
@@ -98,46 +98,107 @@ void setSects(float *array, float *pooled, int *posarr, int N, int chs, int zone
   }  
 }
 
-float *getSects(float *array, int *posarr, int N, int chs, int zoneNumbers, int dim, int stride, int k_size, int dilation) {
-  // Allocate memory for pooled
-  float *pooled = (float *)malloc(N * chs * zoneNumbers * zoneNumbers * k_size * k_size * sizeof(float));
-  
-  // Precompute some values to avoid recalculating in each loop
-  int chs_dim_dim = chs * dim * dim;
-  int ch_zone_size = zoneNumbers * zoneNumbers * k_size * k_size;
-  int zone_size = zoneNumbers * k_size * k_size;
+typedef struct {
+  int N_from;
+  int N_to;
+  int chs;
+  int zoneNumbers;
+  int stride;
+  int k_size;
+  int dilation;
+  int chs_dim_dim;
+  int ch_zone_size;
+  int zone_size;
+  int dim;
+  float *array;
+  float *pooled;
+  int *posarr;
+} args;
 
-  for (int n = 0; n < N; n++) {
-    for (int ch = 0; ch < chs; ch++) {
-      for (int j = 0; j < zoneNumbers; j++) {
-        for (int i = 0; i < zoneNumbers; i++) {
+int getSect(void *argument){
+  args arg = *(args*)argument;
+  for (int n = arg.N_from; n < arg.N_to; n++) {
+    for (int ch = 0; ch < arg.chs; ch++) {
+      for (int j = 0; j < arg.zoneNumbers; j++) {
+        for (int i = 0; i < arg.zoneNumbers; i++) {
           // Get starting position
-          int base_y = j * stride;
-          int base_x = i * stride;
+          int base_y = j * arg.stride;
+          int base_x = i * arg.stride;
 
-          for (int y = 0; y < k_size; y++) {
-            for (int x = 0; x < k_size; x++) {
-              int idx_y = base_y + y * dilation;
-              int idx_x = base_x + x * dilation;
+          for (int y = 0; y < arg.k_size; y++) {
+            for (int x = 0; x < arg.k_size; x++) {
+              int idx_y = base_y + y * arg.dilation;
+              int idx_x = base_x + x * arg.dilation;
 
-              int pos = (n * chs_dim_dim) + (ch * dim * dim) + (idx_y * dim) + idx_x;
+              int pos = (n * arg.chs_dim_dim) + (ch * arg.dim * arg.dim) + (idx_y * arg.dim) + idx_x;
 
               // Precompute pooledPos to avoid redundant calculation
-              int pooledPos = (n * chs * ch_zone_size) 
-                               + (ch * ch_zone_size) 
-                               + (j * zone_size) 
-                               + (i * k_size * k_size) 
-                               + (y * k_size) 
+              int pooledPos = (n * arg.chs * arg.ch_zone_size) 
+                               + (ch * arg.ch_zone_size) 
+                               + (j * arg.zone_size) 
+                               + (i * arg.k_size * arg.k_size) 
+                               + (y * arg.k_size) 
                                + x;
               
               // Use pointer arithmetic for faster memory access
-              pooled[pooledPos] = array[pos];
-              posarr[pooledPos] = pos;
+              arg.pooled[pooledPos] = arg.array[pos];
+              arg.posarr[pooledPos] = pos;
             }
           }
         }
       }
     }
+  }
+  return 0;
+}
+
+float *getSects(float *array, int *posarr, int N, int chs, int zoneNumbers, int dim, int stride, int k_size, int dilation) {
+  // Allocate memory for pooled
+  float *pooled = (float *)malloc(N * chs * zoneNumbers * zoneNumbers * k_size * k_size * sizeof(float));
+  
+  int nThreads = 4;
+  if (N > 4){
+    nThreads = 12;
+  }
+  thrd_t *threads = (thrd_t*)malloc(sizeof(thrd_t) * nThreads);
+  args *arguments = malloc(sizeof(args) * nThreads);
+
+  // Precompute some values to avoid recalculating in each loop
+  int chs_dim_dim = chs * dim * dim;
+  int ch_zone_size = zoneNumbers * zoneNumbers * k_size * k_size;
+  int zone_size = zoneNumbers * k_size * k_size;
+
+  int N_by_thread = (int) N / nThreads;
+
+  for (int i = 0; i < nThreads; i++){
+    arguments[i].N_from = N_by_thread * i;
+    if (i < nThreads - 1){
+      arguments[i].N_to = N_by_thread;
+    } else {
+      arguments[i].N_to = N - (N_by_thread * nThreads);
+    }
+    arguments[i].chs = chs;
+    arguments[i].zoneNumbers = zoneNumbers;
+    arguments[i].stride = stride;
+    arguments[i].array = array;
+    arguments[i].k_size = k_size;
+    arguments[i].dilation = dilation;
+    arguments[i].chs_dim_dim = chs_dim_dim;
+    arguments[i].ch_zone_size = ch_zone_size;
+    arguments[i].zone_size = zone_size;
+    arguments[i].dim = dim;
+    arguments[i].chs = chs;
+    arguments[i].pooled = pooled;
+    arguments[i].posarr = posarr;
+
+    if (thrd_create(&threads[i], getSect, &arguments[i]) != thrd_success){
+      printf("Failed to create thread %d\n", i + 1);
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  for (int i = 0; i < nThreads; i++){
+    thrd_join(threads[i], NULL);
   }
 
   return pooled;
