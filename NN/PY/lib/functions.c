@@ -205,6 +205,85 @@ float *getSects(float *array, int *posarr, int N, int chs, int zoneNumbers, int 
 }
 
 
+int setConvGradThrd(void *argument){
+  // Grad INPT (N, chs, n * n, kernel_size, kernel_size)
+  // PosArr (N, chs, n * n, kernel_size * kernel_size)
+  // Grad OUT (N, chs, w, h)
+  
+  args arg = *(args*)argument;
+
+  for (int n = arg.N_from; n < arg.N_to; n++) {
+    for (int ch = 0; ch < arg.chs; ch++) {
+      for (int j = 0; j < arg.zoneNumbers; j++) {
+        for (int i = 0; i < arg.zoneNumbers; i++) {
+          for (int y = 0; y < arg.k_size; y++) {
+            for (int x = 0; x < arg.k_size; x++) {
+
+              int pos = (n * arg.chs * arg.zoneNumbers * arg.zoneNumbers * arg.k_size * arg.k_size 
+                         + ch * arg.zoneNumbers * arg.zoneNumbers * arg.k_size * arg.k_size
+                         + j * arg.zoneNumbers * k_size * k_size
+                         + i * k_size * k_size
+                         + y * k_size
+                         + x;
+
+              int arrpos = arg.posarr[pos];
+              arg.gradOut[arrpos] += arg.gradInpt[pos];
+          }
+        }
+      }
+    }
+  } 
+  return 0;
+}
+
+void setConvGrad(float *gradInpt, float *gradOut, int *posarr, int N, int chs, int zoneNumbers, int dim, int k_size){
+
+  int nThreads = 4;
+  if (N > 4){
+    nThreads = 12;
+  }
+  thrd_t *threads = (thrd_t*)malloc(sizeof(thrd_t) * nThreads);
+  args *arguments = malloc(sizeof(args) * nThreads);
+
+  // Precompute some values to avoid recalculating in each loop
+  int chs_dim_dim = chs * dim * dim;
+  int ch_zone_size = zoneNumbers * zoneNumbers * k_size * k_size;
+  int zone_size = zoneNumbers * k_size * k_size;
+
+  int N_by_thread = (int) N / nThreads;
+
+  for (int i = 0; i < nThreads; i++){
+    arguments[i].N_from = N_by_thread * i;
+    if (i < nThreads - 1){
+      arguments[i].N_to = N_by_thread;
+    } else {
+      arguments[i].N_to = N - (N_by_thread * nThreads);
+    }
+    arguments[i].chs = chs;
+    arguments[i].zoneNumbers = zoneNumbers;
+    arguments[i].k_size = k_size;
+    arguments[i].chs_dim_dim = chs_dim_dim;
+    arguments[i].ch_zone_size = ch_zone_size;
+    arguments[i].zone_size = zone_size;
+    arguments[i].dim = dim;
+    arguments[i].chs = chs;
+    arguments[i].gradInpt = gradInpt;
+    arguments[i].gradOut = gradOut;
+    arguments[i].posarr = posarr;
+
+    if (thrd_create(&threads[i], setConvGradThrd, &arguments[i]) != thrd_success){
+      printf("Failed to create thread %d\n", i + 1);
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  for (int i = 0; i < nThreads; i++){
+    thrd_join(threads[i], NULL);
+  }
+
+}
+
+
 void cleanPtr(float *ptr) {
   if (ptr != NULL) {
     free(ptr);  // Free the allocated memory
