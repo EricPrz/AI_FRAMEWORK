@@ -112,6 +112,8 @@ typedef struct {
   int dim;
   float *array;
   float *pooled;
+  float *gradOut;
+  float *gradInpt;
   int *posarr;
 } args;
 
@@ -173,9 +175,9 @@ float *getSects(float *array, int *posarr, int N, int chs, int zoneNumbers, int 
   for (int i = 0; i < nThreads; i++){
     arguments[i].N_from = N_by_thread * i;
     if (i < nThreads - 1){
-      arguments[i].N_to = N_by_thread;
+      arguments[i].N_to = N_by_thread * (i + 1);
     } else {
-      arguments[i].N_to = N - (N_by_thread * nThreads);
+      arguments[i].N_to = N;
     }
     arguments[i].chs = chs;
     arguments[i].zoneNumbers = zoneNumbers;
@@ -221,13 +223,14 @@ int setConvGradThrd(void *argument){
 
               int pos = (n * arg.chs * arg.zoneNumbers * arg.zoneNumbers * arg.k_size * arg.k_size 
                          + ch * arg.zoneNumbers * arg.zoneNumbers * arg.k_size * arg.k_size
-                         + j * arg.zoneNumbers * k_size * k_size
-                         + i * k_size * k_size
-                         + y * k_size
-                         + x;
+                         + j * arg.zoneNumbers * arg.k_size * arg.k_size
+                         + i * arg.k_size * arg.k_size
+                         + y * arg.k_size
+                         + x);
 
               int arrpos = arg.posarr[pos];
               arg.gradOut[arrpos] += arg.gradInpt[pos];
+            }
           }
         }
       }
@@ -238,10 +241,13 @@ int setConvGradThrd(void *argument){
 
 void setConvGrad(float *gradInpt, float *gradOut, int *posarr, int N, int chs, int zoneNumbers, int dim, int k_size){
 
-  int nThreads = 4;
-  if (N > 4){
-    nThreads = 12;
-  }
+  // int nThreads = 4;
+  // if (N > 4){
+  //   nThreads = 12;
+  // }
+
+  int nThreads = 1;
+
   thrd_t *threads = (thrd_t*)malloc(sizeof(thrd_t) * nThreads);
   args *arguments = malloc(sizeof(args) * nThreads);
 
@@ -255,9 +261,9 @@ void setConvGrad(float *gradInpt, float *gradOut, int *posarr, int N, int chs, i
   for (int i = 0; i < nThreads; i++){
     arguments[i].N_from = N_by_thread * i;
     if (i < nThreads - 1){
-      arguments[i].N_to = N_by_thread;
+      arguments[i].N_to = N_by_thread * (i + 1);
     } else {
-      arguments[i].N_to = N - (N_by_thread * nThreads);
+      arguments[i].N_to = N;
     }
     arguments[i].chs = chs;
     arguments[i].zoneNumbers = zoneNumbers;
