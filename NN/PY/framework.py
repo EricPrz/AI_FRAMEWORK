@@ -68,62 +68,41 @@ class Tensor(object):
             creator.beta.backward(self.gradient)
 
         elif self.creation_op == "get_sects":      
-            """
+            init_time = time.time()
             conv = self.creators[0]
             x = self.creators[1]
 
-            new_gradient = np.zeros(x.data.shape)
+            new_gradient = np.zeros_like(x.data)
+            base_idxs = np.arange(x.data.shape[2] * x.data.shape[3]).reshape((x.data.shape[2], x.data.shape[3]))
 
-            for i in range(conv.n ** conv.n):
-                print("Idxs c:", conv.pos[:, :, i])
-                print("Grad:", self.gradient.data.reshape(conv.pos.shape)[:, :, i])
-                print("Idxs:", idxs)
-                print("New Grad:", new_gradient[idxs])
-                idxs = np.unravel_index(conv.pos[:, :, i], x.data.shape)
-                new_gradient[idxs] += self.gradient.data.reshape(conv.pos.shape)[:, :, i]   
+            for i in range(conv.n ** 2):
+                coords = conv.extracted_from_pos[i]
+                idxs = base_idxs[coords["y_from"]:coords["y_to"]:coords["step"], coords["x_from"]:coords["x_to"]:coords["step"]].flatten()
 
+                row_idxs, col_idxs = np.unravel_index(idxs, (x.shape[2], x.shape[3]))
 
-
-            
+                new_gradient[:, :, row_idxs, col_idxs] += self.gradient.data.reshape((x.shape[0], conv.in_channels, conv.kernel_size * conv.kernel_size, conv.n * conv.n))[:, :, :, i]
+            #print("Sects Back Time:", time.time() - init_time)
             x.backward(Tensor(new_gradient))
 
-            """
-
-            # init_time = time.time()
-            # conv = self.creators[0]
+            # sect = self.creators[0]
             # x = self.creators[1]
             #
-            # new_gradient = np.zeros_like(x.data)
-            # base_idxs = np.arange(x.data.shape[2] * x.data.shape[3]).reshape((x.data.shape[2], x.data.shape[3]))
+            # new_gradient = np.zeros((x.data.shape), dtype=np.float32)
             #
-            # for i in range(conv.n ** 2):
-            #     coords = conv.extracted_from_pos[i]
-            #     idxs = base_idxs[coords["y_from"]:coords["y_to"]:coords["step"], coords["x_from"]:coords["x_to"]:coords["step"]].flatten()
+            # lib.setConvGrad(self.gradient.data.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), 
+            #                 new_gradient.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            #                 sect.pos.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+            #                 sect.N,
+            #                 sect.chs,
+            #                 sect.n,
+            #                 sect.dims,
+            #                 sect.kernel_size)
             #
-            #     row_idxs, col_idxs = np.unravel_index(idxs, (x.shape[2], x.shape[3]))
+            # tns_ng = Tensor(new_gradient)
+            # del (new_gradient)
             #
-            #     new_gradient[:, :, row_idxs, col_idxs] += self.gradient.data.reshape((x.shape[0], conv.in_channels, conv.kernel_size * conv.kernel_size, conv.n * conv.n))[:, :, :, i]
-            # #print("Sects Back Time:", time.time() - init_time)
-            # x.backward(Tensor(new_gradient))
-
-            sect = self.creators[0]
-            x = self.creators[1]
-
-            new_gradient = np.zeros((x.data.shape), dtype=np.float32)
-
-            lib.setConvGrad(self.gradient.data.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), 
-                            new_gradient.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-                            sect.pos.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-                            sect.N,
-                            sect.chs,
-                            sect.n,
-                            sect.dims,
-                            sect.kernel_size)
-
-            tns_ng = Tensor(new_gradient)
-            del (new_gradient)
-
-            x.backward(tns_ng)
+            # x.backward(tns_ng)
 
 
 
@@ -415,7 +394,7 @@ class Linear(Layer):
 class Dropout(Layer):
     def __init__(self, pct):
         super().__init__()
-        self.pct = pct
+        self.pct = 1 - pct
         self.mask = None
 
     def forward(self, x:Tensor):
