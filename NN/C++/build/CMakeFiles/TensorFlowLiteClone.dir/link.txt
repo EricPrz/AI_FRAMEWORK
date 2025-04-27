@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/TensorFlowLiteClone.dir/link.d CMakeFiles/TensorFlowLiteClone.dir/src/tensor.cpp.o CMakeFiles/TensorFlowLiteClone.dir/src/loss.cpp.o CMakeFiles/TensorFlowLiteClone.dir/src/layer.cpp.o CMakeFiles/TensorFlowLiteClone.dir/src/optimizer.cpp.o CMakeFiles/TensorFlowLiteClone.dir/main.cpp.o -o TensorFlowLiteClone

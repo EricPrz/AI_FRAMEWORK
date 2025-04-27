@@ -1,11 +1,12 @@
 #include <iostream>
+#include <vector>
 #include <random>
 
 class Tensor {
   public:
     float *data;
     int id;
-    float *gradient;
+    Tensor *gradient;
     int *shape;
     int dims;
     int size;
@@ -145,6 +146,35 @@ class Linear: public Layer{
         return mul;
       }
     }
+};
+
+class Optimizer {
+  public:
+    std::vector<std::vector<Tensor>> parameters;
+    Optimizer(std::vector<std::vector<Tensor>> params){
+      this->parameters = params;
+    }
+};
+
+class SGD: public Optimizer {
+  float lr;
+  bool autoZero;
+  SGD(std::vector<std::vector<Tensor>> parameters, float lr = 0.01, bool autoZero = true) : Optimizer(parameters){
+    this->lr = lr;
+    this->autoZero = autoZero;
+  }
+  void step(){
+    for (int i = 0; i < parameters.size(); i++){
+      std::vector<Tensor> param = parameters.at(i);
+      for (int j = 0; j < param.size(); j++){
+        *(param[j].data) = *(param[j].data) - lr * (*(param[j].gradient->data));
+
+        if (autoZero){
+          *(param[j].gradient->data) = 0;
+        }
+      }
+    }
+  }
 };
 
 
