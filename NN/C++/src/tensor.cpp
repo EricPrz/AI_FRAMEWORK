@@ -56,6 +56,17 @@ Tensor* Tensor::operator+(Tensor* other) {
     return tns;
 }
 
+Tensor* Tensor::operator-() {
+    float* result = new float[this->size];
+    for (int i = 0; i < this->size; i++) {
+        result[i] = - this->data[i];
+    }
+
+    Tensor* tns = new Tensor(result, this->shape, this->dims, this->requires_grad);
+    tns->set_creator(this, nullptr, "substract");
+    return tns;
+}
+
 Tensor* Tensor::operator-(Tensor* other) {
     float* result = new float[this->size];
     for (int i = 0; i < this->size; i++) {
@@ -65,6 +76,32 @@ Tensor* Tensor::operator-(Tensor* other) {
     Tensor* tns = new Tensor(result, this->shape, this->dims, this->requires_grad || other->requires_grad);
     tns->set_creator(this, other, "substract");
     return tns;
+}
+
+Tensor* Tensor::operator*(Tensor* other) {
+    if (this->shape == other->shape){
+        float* result = new float[this->size];
+        for (int i = 0; i < this->size; i++) {
+            result[i] = this->data[i] * other->data[i];
+        }
+
+        Tensor* tns = new Tensor(result, this->shape, this->dims, this->requires_grad || other->requires_grad);
+        tns->set_creator(this, other, "mul");
+        return tns;
+    } 
+    else if (this->size == 1){
+        float* result = new float[other->size];
+        for (int i = 0; i < other->size; i++) {
+            result[i] = this->data[0] * other->data[i];
+        }
+
+        Tensor* tns = new Tensor(result, other->shape, other->dims, this->requires_grad || other->requires_grad);
+        tns->set_creator(this, other, "mul");
+        return tns;
+    }
+    else {
+        return nullptr;
+    }
 }
 
 Tensor* Tensor::transpose() {
@@ -83,7 +120,7 @@ Tensor* Tensor::transpose() {
     return tns;
 }
 
-Tensor* Tensor::power(int power){
+Tensor* Tensor::power(float power){
     float* result = new float[this->size];
     int rows = this->shape[0];
     int cols = this->shape[1];
@@ -95,6 +132,10 @@ Tensor* Tensor::power(int power){
     }
 
     Tensor* tns = new Tensor(result, this->shape, this->dims);
+
+    int shp[] = {1};
+    Tensor* powerTns = new Tensor(&power, shp, 1);
+    tns->set_creator(this, powerTns, "power");
     return tns;
 }
 
@@ -119,6 +160,16 @@ void Tensor::backward() {
             this->creator_b->gradient = this->gradient;
             this->creator_a->backward();
             this->creator_b->backward();
+        }
+        else if (creation_op == "substract") {
+            this->creator_a->gradient = this->gradient;
+            this->creator_b->gradient = -(*this->gradient);
+            this->creator_a->backward();
+            this->creator_b->backward();
+        }
+        else if (creation_op == "power") {
+            this->creator_a->gradient = *this->creator_b * this->gradient;
+            this->creator_a->backward();
         }
         else if (creation_op == "matmul") {
             Tensor* a_T = this->creator_a;
