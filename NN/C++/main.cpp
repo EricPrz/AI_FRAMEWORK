@@ -13,22 +13,30 @@ int main() {
     
 
     std::vector<std::vector<Tensor*>> params = {{lin1->weights, lin1->bias}};
-    SGD* optimizer = new SGD(params, 0.01); // Learning rate = 0.01
+    SGD* optimizer = new SGD(params, 0.001); // Learning rate = 0.01
     MSE* loss_fn = new MSE();
 
     int out_shape[] = {1, 1};
     
 
     for (int i = 0; i<5; i++){
+        // Tensor* output = lin1->forward(input);
         Tensor* output = lin1->forward(input);
-        std::cout << "Output: ";
-        output->print();
 
         Tensor* loss = loss_fn->compute(output, Tensor::zeros(out_shape, 2));
-        std::cout << "Loss: ";
-        loss->print();
         loss->backward();
-        lin1->weights->gradient->print();
+        
+        std::cout << "Output: ";
+        output->print();
+        std::cout << std::endl;
+
+        std::cout << "Weights: ";
+        lin1->weights->print();
+        std::cout << std::endl;
+
+        std::cout << "Bias: ";
+        lin1->bias->print();
+        std::cout << std::endl;
 
         optimizer->step();
     }

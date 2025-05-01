@@ -15,6 +15,8 @@ MSE::~MSE(){}
 
 Tensor* MSE::compute(Tensor* x, Tensor* y) {
     loss = *x - y;
-    loss = loss->power(2);
+    float* pow = new float;
+    *pow = 2;
+    loss = loss->power(pow);
     return loss; 
 }

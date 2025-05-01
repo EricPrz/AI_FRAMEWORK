@@ -26,7 +26,7 @@ class Tensor {
     Tensor *operator-(Tensor *other);
     Tensor *operator*(Tensor *other);
     Tensor *transpose();
-    Tensor* power(float power);
+    Tensor* power(float* power);
     
     void set_creator(Tensor *a, Tensor *b, std::string op);
     void backward();

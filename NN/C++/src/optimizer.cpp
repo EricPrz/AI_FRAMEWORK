@@ -1,5 +1,6 @@
 // optimizer.cpp
 #include "optimizer.h"
+#include <iostream>
 
 Optimizer::Optimizer(std::vector<std::vector<Tensor*>> params) {
     this->parameters = params;
@@ -19,7 +20,8 @@ void SGD::step() {
         for (auto& param : layerParams) {
             if (param->gradient != nullptr) {
                 for (int i = 0; i < param->size; i++) {
-                    param->data[i] -= lr * param->gradient->data[i];
+                    param->data[i] = param->data[i] - lr * param->gradient->data[i];
+                    
                     if (autoZero) {
                         param->gradient->data[i] = 0;
                     }

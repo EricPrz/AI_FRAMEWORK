@@ -120,21 +120,21 @@ Tensor* Tensor::transpose() {
     return tns;
 }
 
-Tensor* Tensor::power(float power){
+Tensor* Tensor::power(float* power){
     float* result = new float[this->size];
     int rows = this->shape[0];
     int cols = this->shape[1];
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            result[i * cols + j] = std::pow(this->data[i * cols + j], power);
+            result[i * cols + j] = std::pow(this->data[i * cols + j], *power);
         }
     }
 
     Tensor* tns = new Tensor(result, this->shape, this->dims);
 
     int shp[] = {1};
-    Tensor* powerTns = new Tensor(&power, shp, 1);
+    Tensor* powerTns = new Tensor(power, shp, 1);
     tns->set_creator(this, powerTns, "power");
     return tns;
 }
@@ -153,6 +153,7 @@ void Tensor::backward() {
         std::memcpy(shapeCopy, this->shape, this->dims * sizeof(int));
         this->gradient = Tensor::ones(shapeCopy, this->dims);
     }
+
 
     if (this->creator_a != nullptr) {
         if (creation_op == "add") {
@@ -182,6 +183,12 @@ void Tensor::backward() {
             this->creator_a->gradient = grad_a;
             this->creator_b->gradient = grad_b;
 
+            this->creator_a->backward();
+            this->creator_b->backward();
+        }
+        else if (creation_op == "mul"){
+            this->creator_a->gradient = *this->creator_b * this->gradient;
+            this->creator_b->gradient = *this->creator_a * this->gradient;
             this->creator_a->backward();
             this->creator_b->backward();
         }
