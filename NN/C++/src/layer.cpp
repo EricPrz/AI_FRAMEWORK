@@ -10,7 +10,7 @@ Layer::~Layer() {}
 Linear::Linear(int in_features, int out_features, bool bias) {
     this->hasBias = bias;
     int weightShape[2] = {in_features, out_features};
-    this->weights = Tensor::randoms(weightShape, 2);
+    this->weights = Tensor::randoms(weightShape, 2, -0.5, 0.5);
 
     if (bias) {
         int biasShape[2] = {1, out_features};

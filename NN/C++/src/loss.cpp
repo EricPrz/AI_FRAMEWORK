@@ -1,5 +1,7 @@
 // loss.cpp
 #include "loss.h"
+#include <numeric>
+#include <cmath>
 
 Loss::Loss() {
     loss = nullptr;
@@ -30,11 +32,19 @@ CrossEntropy::CrossEntropy() : Loss() {
 CrossEntropy::~CrossEntropy(){}
 
 Tensor* CrossEntropy::compute(Tensor* x, Tensor* y) {
-    loss = *x - y;
-    float* pow = new float;
-    *pow = 2;
-    loss = loss->power(pow);
+    // loss = *x - y;
+    // float* pow = new float;
+    // *pow = 2;
+    // loss = loss->power(pow);
+    // return loss;
+
+    Tensor *softmax = x->softmax();
+    return softmax;
+
+    loss = *softmax - y;
+
     return loss;
+
 }
 
 

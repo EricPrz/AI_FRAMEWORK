@@ -21,3 +21,11 @@ public:
 
     Tensor* compute(Tensor* x, Tensor* y);
 };
+
+class CrossEntropy : public Loss {
+public:
+    CrossEntropy();
+    ~CrossEntropy();
+
+    Tensor* compute(Tensor* x, Tensor* y);
+};

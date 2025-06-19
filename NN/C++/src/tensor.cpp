@@ -2,6 +2,7 @@
 #include "tensor.h"
 #include <random>
 #include <cstring> // for memcpy
+#include <iostream>
 #include <cmath>
 
 Tensor::Tensor(float* dataPtr, int shape[], int dims, bool requires_grad) {
@@ -136,6 +137,25 @@ Tensor* Tensor::power(float* power){
     int shp[] = {1};
     Tensor* powerTns = new Tensor(power, shp, 1);
     tns->set_creator(this, powerTns, "power");
+    return tns;
+}
+
+Tensor* Tensor::softmax(){
+    float *result = new float[this->size];
+    float total = 0.0f;
+
+    for (int i = 0; i < this->size; i++){
+        result[i] = std::exp(this->data[i]);
+        total += result[i];
+    }
+
+    for (int i = 0; i < this->size; i++){
+        result[i] = result[i]/total;
+    }
+
+    Tensor *tns = new Tensor(result, this->shape, this->dims);
+    tns->set_creator(this, nullptr, "softmax");
+
     return tns;
 }
 
