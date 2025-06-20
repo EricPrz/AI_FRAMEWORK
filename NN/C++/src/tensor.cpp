@@ -212,6 +212,11 @@ void Tensor::backward() {
             this->creator_a->backward();
             this->creator_b->backward();
         }
+        else if (creation_op == "crossentropy"){
+            // Derivative: softmax - y
+            this->creator_a->creator_a->gradient = *this->creator_a - this->creator_b;
+            this->creator_a->creator_a->backward();
+        }
     }
 }
 
