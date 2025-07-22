@@ -6,7 +6,7 @@ project(AI_FRAMEWORK)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native")
 
 # Add the include directory so CMake can find the header files
 include_directories(${CMAKE_SOURCE_DIR}/include)

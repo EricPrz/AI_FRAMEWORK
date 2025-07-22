@@ -4,6 +4,7 @@
 #include <cstring> // for memcpy
 #include <iostream>
 #include <memory>
+#include <string>
 #include <cmath>
 
 Tensor::Tensor(std::shared_ptr<float[]> dataPtr, int shape[], int dims, bool requires_grad) {
@@ -51,10 +52,11 @@ std::shared_ptr<Tensor> Tensor::matmul(std::shared_ptr<Tensor> other) {
 
 std::shared_ptr<Tensor> Tensor::operator+(std::shared_ptr<Tensor> other) {
     
-    if (this->size != other->size) {
-        throw std::runtime_error("Size mismatch in tensor addition");
+    if (this->size != other->size && this->size % other->size != 0 && other->size % this->size != 0) {
+        std::cout << "Error: " << this->size << " " << other->size << std::endl;
+        throw std::runtime_error("Size mismatch in tensor addition\n");
     }
-    
+
     std::shared_ptr<float[]> result(new float[this->size]);
     
     for (int i = 0; i < this->size; i++) {
@@ -69,6 +71,65 @@ std::shared_ptr<Tensor> Tensor::operator+(std::shared_ptr<Tensor> other) {
     auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad || other->requires_grad);
     tns->set_creator(shared_from_this(), other, "add");
     return tns;
+
+
+    // if (this->size == other->size){
+    //
+    //     std::shared_ptr<float[]> result(new float[this->size]);
+    //
+    //     for (int i = 0; i < this->size; i++) {
+    //         result[i] = this->data[i] + other->data[i];
+    //     }
+    //
+    //     std::shared_ptr<int[]> newShape(new int[this->dims]);
+    //     for (int i = 0; i < this->dims; i++) {
+    //         newShape[i] = this->shape[i];
+    //     }
+    //
+    //     auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad || other->requires_grad);
+    //     tns->set_creator(shared_from_this(), other, "add");
+    //     return tns;
+    // }
+    //
+    // else if (this->size % other->size == 0){
+    //
+    //     std::shared_ptr<float[]> result(new float[this->size]);
+    //
+    //     for (int i = 0; i < this->size; i++) {
+    //         result[i] = this->data[i] + other->data[i % other->size];
+    //     }
+    //
+    //     std::shared_ptr<int[]> newShape(new int[this->dims]);
+    //     for (int i = 0; i < this->dims; i++) {
+    //         newShape[i] = this->shape[i];
+    //     }
+    //
+    //     auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad || other->requires_grad);
+    //     tns->set_creator(shared_from_this(), other, "add");
+    //     return tns;
+    // }
+    //
+    // else {
+    //
+    //     std::shared_ptr<float[]> result(new float[other->size]);
+    //
+    //     for (int i = 0; i < other->size; i++) {
+    //         result[i] = other->data[i] + this->data[i % this->size];
+    //     }
+    //
+    //     std::shared_ptr<int[]> newShape(new int[other->dims]);
+    //     for (int i = 0; i < other->dims; i++) {
+    //         newShape[i] = other->shape[i];
+    //     }
+    //
+    //     auto tns = std::make_shared<Tensor>(result, newShape.get(), other->dims, this->requires_grad || other->requires_grad);
+    //     tns->set_creator(shared_from_this(), other, "add");
+    //     return tns;
+    // }
+    //
+    // // Should never reach here, but just in case:
+    // throw std::runtime_error("Unexpected case in tensor addition logic");
+
 }
 
 std::shared_ptr<Tensor> Tensor::operator-() {
@@ -93,6 +154,12 @@ std::shared_ptr<Tensor> Tensor::operator-() {
 }
 
 std::shared_ptr<Tensor> Tensor::operator-(std::shared_ptr<Tensor> other) {
+
+    if (this->size != other->size) {
+        std::cout << "Error: " << this->size << " " << other->size << std::endl;
+        throw std::runtime_error("Size mismatch in tensor substraction\n");
+    }
+
     std::shared_ptr<float[]> result(new float[this->size]);
 
     for (int i = 0; i < this->size; i++) {

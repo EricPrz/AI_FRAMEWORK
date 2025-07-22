@@ -18,15 +18,14 @@ AI
  /usr/lib/libc_nonshared.a
  /usr/lib/libm.so.6
  /usr/lib/libmvec.so.1
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles/AI.dir/main.cpp.o
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles/AI.dir/src/layer.cpp.o
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles/AI.dir/src/loss.cpp.o
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles/AI.dir/src/optimizer.cpp.o
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles/AI.dir/src/tensor.cpp.o
+ /home/eric/Documents/AI_FRAMEWORK/NN/C++/CMakeFiles/AI.dir/main.cpp.o
+ /home/eric/Documents/AI_FRAMEWORK/NN/C++/CMakeFiles/AI.dir/src/layer.cpp.o
+ /home/eric/Documents/AI_FRAMEWORK/NN/C++/CMakeFiles/AI.dir/src/loss.cpp.o
+ /home/eric/Documents/AI_FRAMEWORK/NN/C++/CMakeFiles/AI.dir/src/optimizer.cpp.o
+ /home/eric/Documents/AI_FRAMEWORK/NN/C++/CMakeFiles/AI.dir/src/tensor.cpp.o
 
 CMakeFiles/AI.dir/main.cpp.o
  /home/eric/Documents/AI_FRAMEWORK/NN/C++/main.cpp
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/debug.h
  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/layer.h
  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/loss.h
  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/optimizer.h
@@ -1351,6 +1350,7 @@ CMakeFiles/AI.dir/src/tensor.cpp.o
  /usr/include/c++/15.1.1/pstl/pstl_config.h
  /usr/include/c++/15.1.1/random
  /usr/include/c++/15.1.1/stdexcept
+ /usr/include/c++/15.1.1/stdlib.h
  /usr/include/c++/15.1.1/streambuf
  /usr/include/c++/15.1.1/string
  /usr/include/c++/15.1.1/string_view
@@ -1418,9 +1418,15 @@ CMakeFiles/AI.dir/src/tensor.cpp.o
  /usr/include/unistd.h
  /usr/include/wchar.h
  /usr/include/wctype.h
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/emmintrin.h
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/limits.h
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mm_malloc.h
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mmintrin.h
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mwaitintrin.h
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/pmmintrin.h
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdarg.h
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stddef.h
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdint.h
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/xmmintrin.h
 

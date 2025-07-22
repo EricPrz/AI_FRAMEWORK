@@ -23,12 +23,11 @@ AI: /usr/lib/Scrt1.o \
   CMakeFiles/AI.dir/src/optimizer.cpp.o \
   CMakeFiles/AI.dir/src/tensor.cpp.o
 
-CMakeFiles/AI.dir/main.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/main.cpp \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/debug.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/layer.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/loss.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/optimizer.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/tensor.h \
+CMakeFiles/AI.dir/main.cpp.o: main.cpp \
+  include/layer.h \
+  include/loss.h \
+  include/optimizer.h \
+  include/tensor.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
@@ -292,9 +291,9 @@ CMakeFiles/AI.dir/main.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/main.cpp 
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdint.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h
 
-CMakeFiles/AI.dir/src/layer.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src/layer.cpp \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/layer.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/tensor.h \
+CMakeFiles/AI.dir/src/layer.cpp.o: src/layer.cpp \
+  include/layer.h \
+  include/tensor.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
@@ -558,9 +557,9 @@ CMakeFiles/AI.dir/src/layer.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src/
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdint.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h
 
-CMakeFiles/AI.dir/src/loss.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src/loss.cpp \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/loss.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/tensor.h \
+CMakeFiles/AI.dir/src/loss.cpp.o: src/loss.cpp \
+  include/loss.h \
+  include/tensor.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
@@ -850,9 +849,9 @@ CMakeFiles/AI.dir/src/loss.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src/l
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdint.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h
 
-CMakeFiles/AI.dir/src/optimizer.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src/optimizer.cpp \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/optimizer.h \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/tensor.h \
+CMakeFiles/AI.dir/src/optimizer.cpp.o: src/optimizer.cpp \
+  include/optimizer.h \
+  include/tensor.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
@@ -1116,8 +1115,8 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdint.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h
 
-CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src/tensor.cpp \
-  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/tensor.h \
+CMakeFiles/AI.dir/src/tensor.cpp.o: src/tensor.cpp \
+  include/tensor.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
@@ -1345,6 +1344,7 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
   /usr/include/c++/15.1.1/pstl/pstl_config.h \
   /usr/include/c++/15.1.1/random \
   /usr/include/c++/15.1.1/stdexcept \
+  /usr/include/c++/15.1.1/stdlib.h \
   /usr/include/c++/15.1.1/streambuf \
   /usr/include/c++/15.1.1/string \
   /usr/include/c++/15.1.1/string_view \
@@ -1412,18 +1412,32 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
   /usr/include/unistd.h \
   /usr/include/wchar.h \
   /usr/include/wctype.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/emmintrin.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/limits.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mm_malloc.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mmintrin.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mwaitintrin.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/pmmintrin.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdarg.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stddef.h \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdint.h \
-  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h \
+  /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/xmmintrin.h
 
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/xmmintrin.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mm_malloc.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/emmintrin.h:
 
 /usr/include/strings.h:
 
 /usr/include/string.h:
 
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/opt_random.h:
+
+/usr/include/c++/15.1.1/stdlib.h:
 
 /usr/include/c++/15.1.1/pstl/glue_numeric_defs.h:
 
@@ -1437,9 +1451,7 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
 
 /usr/include/c++/15.1.1/bits/random.h:
 
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/src/tensor.cpp:
-
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/src/optimizer.cpp:
+src/tensor.cpp:
 
 /usr/include/math.h:
 
@@ -1477,9 +1489,13 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
 
 /usr/include/bits/flt-eval-method.h:
 
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/src/layer.cpp:
+src/loss.cpp:
+
+src/layer.cpp:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stddef.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdarg.h:
 
 /usr/include/unistd.h:
 
@@ -1511,7 +1527,11 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
 
 /usr/include/linux/limits.h:
 
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mwaitintrin.h:
+
 /usr/include/linux/errno.h:
+
+/usr/include/linux/close_range.h:
 
 /usr/include/gnu/stubs.h:
 
@@ -1527,6 +1547,10 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
 
 /usr/include/bits/wctype-wchar.h:
 
+/usr/include/bits/timesize.h:
+
+/usr/include/c++/15.1.1/iosfwd:
+
 /usr/include/bits/math-vector.h:
 
 /usr/include/bits/uio_lim.h:
@@ -1539,15 +1563,7 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
 
 /usr/include/c++/15.1.1/string:
 
-/usr/include/stdio.h:
-
-/usr/include/bits/wordsize.h:
-
-/usr/include/c++/15.1.1/bits/allocator.h:
-
-/usr/include/bits/types/struct_timespec.h:
-
-/usr/include/c++/15.1.1/clocale:
+/usr/include/bits/types/struct_tm.h:
 
 /usr/include/bits/waitflags.h:
 
@@ -1569,8 +1585,6 @@ CMakeFiles/AI.dir/src/tensor.cpp.o: /home/eric/Documents/AI_FRAMEWORK/NN/C++/src
 
 /usr/include/bits/types/mbstate_t.h:
 
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/include/tensor.h:
-
 CMakeFiles/AI.dir/src/tensor.cpp.o:
 
 /usr/include/bits/types/clock_t.h:
@@ -1583,11 +1597,13 @@ CMakeFiles/AI.dir/src/tensor.cpp.o:
 
 /usr/include/c++/15.1.1/bits/ostream_insert.h:
 
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/src/loss.cpp:
-
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/syslimits.h:
 
 /usr/include/c++/15.1.1/new:
+
+/usr/include/linux/posix_types.h:
+
+/usr/include/bits/types/FILE.h:
 
 /usr/include/bits/time64.h:
 
@@ -1613,9 +1629,17 @@ CMakeFiles/AI.dir/src/tensor.cpp.o:
 
 /usr/include/c++/15.1.1/pstl/pstl_config.h:
 
+/usr/include/bits/unistd_ext.h:
+
 /usr/include/bits/stdio.h:
 
 /usr/include/bits/stdint-least.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/bits/types/struct___jmp_buf_tag.h:
 
 /usr/include/bits/setjmp.h:
 
@@ -1633,45 +1657,35 @@ CMakeFiles/AI.dir/src/tensor.cpp.o:
 
 /usr/include/c++/15.1.1/bits/stl_function.h:
 
-/usr/include/bits/posix_opt.h:
-
-/usr/include/c++/15.1.1/bits/alloc_traits.h:
-
-/usr/include/bits/atomic_wide_counter.h:
-
-/usr/include/c++/15.1.1/bits/localefwd.h:
+/usr/include/asm-generic/errno-base.h:
 
 /usr/include/asm/unistd.h:
 
-/usr/include/bits/types/struct___jmp_buf_tag.h:
-
-/usr/include/bits/wchar.h:
-
-/usr/include/bits/waitstatus.h:
-
-/usr/include/bits/timesize.h:
-
-/usr/include/c++/15.1.1/iosfwd:
-
-/usr/include/bits/unistd_ext.h:
-
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/include/loss.h:
-
-/usr/include/c++/15.1.1/bits/uses_allocator.h:
-
 /usr/include/alloca.h:
-
-/usr/include/bits/types/struct_tm.h:
 
 /usr/include/bits/timex.h:
 
 /usr/lib/libm.so:
 
-/usr/include/linux/posix_types.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/limits.h:
 
-/usr/include/bits/types/FILE.h:
+/usr/include/bits/types/__sigset_t.h:
 
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/main.cpp:
+/usr/include/stdio.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/c++/15.1.1/bits/allocator.h:
+
+/usr/include/bits/types/struct_timespec.h:
+
+/usr/include/c++/15.1.1/numeric:
+
+/usr/include/asm-generic/posix_types.h:
+
+/usr/include/c++/15.1.1/cerrno:
+
+/usr/include/c++/15.1.1/clocale:
 
 CMakeFiles/AI.dir/src/layer.cpp.o:
 
@@ -1681,29 +1695,23 @@ CMakeFiles/AI.dir/main.cpp.o:
 
 /usr/lib/libmvec.so.1:
 
+/usr/include/c++/15.1.1/tr1/beta_function.tcc:
+
+/usr/include/bits/types/__fpos_t.h:
+
+/usr/include/asm/unistd_64.h:
+
+/usr/include/bits/long-double.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/c++/15.1.1/bits/stl_iterator.h:
+
 /usr/lib/ld-linux-x86-64.so.2:
 
 /usr/include/c++/15.1.1/debug/assertions.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/limits.h:
-
-/usr/include/bits/types/__sigset_t.h:
-
-/usr/include/c++/15.1.1/numeric:
-
-/usr/include/c++/15.1.1/cerrno:
-
-/usr/include/asm-generic/posix_types.h:
-
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/include/debug.h:
-
 /usr/include/bits/pthread_stack_min-dynamic.h:
-
-/usr/lib/libgcc_s.so.1:
-
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/crtendS.o:
-
-/usr/include/c++/15.1.1/stdexcept:
 
 /usr/include/bits/xopen_lim.h:
 
@@ -1711,11 +1719,37 @@ CMakeFiles/AI.dir/main.cpp.o:
 
 /usr/include/bits/typesizes.h:
 
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/pmmintrin.h:
+
+src/optimizer.cpp:
+
+/usr/include/c++/15.1.1/bits/basic_ios.tcc:
+
+CMakeFiles/AI.dir/src/optimizer.cpp.o:
+
+/usr/include/c++/15.1.1/bits/hash_bytes.h:
+
 /usr/include/c++/15.1.1/debug/debug.h:
 
 /usr/lib/libgcc_s.so:
 
 /usr/include/asm/types.h:
+
+/usr/lib/libgcc_s.so.1:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/crtendS.o:
+
+/usr/include/c++/15.1.1/stdexcept:
+
+include/tensor.h:
+
+/usr/include/c++/15.1.1/cwctype:
+
+/usr/include/c++/15.1.1/bits/stl_vector.h:
+
+/usr/include/asm-generic/int-ll64.h:
+
+/usr/include/c++/15.1.1/cstdlib:
 
 /usr/include/bits/types/error_t.h:
 
@@ -1723,13 +1757,9 @@ CMakeFiles/AI.dir/main.cpp.o:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/libgcc.a:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/stdarg.h:
-
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/include/layer.h:
-
-/usr/include/c++/15.1.1/bits/basic_ios.tcc:
-
 /usr/include/bits/pthreadtypes.h:
+
+include/optimizer.h:
 
 /usr/lib/libc.so:
 
@@ -1741,19 +1771,19 @@ CMakeFiles/AI.dir/main.cpp.o:
 
 /usr/include/c++/15.1.1/bits/ranges_algobase.h:
 
+/usr/include/bits/posix_opt.h:
+
+/usr/include/c++/15.1.1/bits/alloc_traits.h:
+
+/usr/include/bits/atomic_wide_counter.h:
+
+/usr/include/c++/15.1.1/bits/localefwd.h:
+
 CMakeFiles/AI.dir/src/loss.cpp.o:
 
 /usr/include/c++/15.1.1/ext/alloc_traits.h:
 
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/c++allocator.h:
-
-/usr/include/linux/close_range.h:
-
-/home/eric/Documents/AI_FRAMEWORK/NN/C++/include/optimizer.h:
-
-/usr/include/c++/15.1.1/bits/locale_facets.h:
-
-/usr/include/c++/15.1.1/bits/streambuf.tcc:
 
 /usr/lib/crtn.o:
 
@@ -1765,19 +1795,9 @@ CMakeFiles/AI.dir/src/loss.cpp.o:
 
 /usr/include/bits/environments.h:
 
-/usr/include/asm-generic/errno-base.h:
-
 /usr/include/asm-generic/errno.h:
 
 /usr/include/c++/15.1.1/bits/stl_raw_storage_iter.h:
-
-/usr/include/c++/15.1.1/cwctype:
-
-/usr/include/c++/15.1.1/bits/stl_vector.h:
-
-/usr/include/asm-generic/int-ll64.h:
-
-/usr/include/c++/15.1.1/cstdlib:
 
 /usr/lib/libc.so.6:
 
@@ -1793,31 +1813,19 @@ CMakeFiles/AI.dir/src/loss.cpp.o:
 
 /usr/include/asm/bitsperlong.h:
 
+include/loss.h:
+
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/error_constants.h:
 
 /usr/include/bits/time.h:
 
+main.cpp:
+
 /usr/include/asm/posix_types.h:
-
-/usr/include/c++/15.1.1/tr1/beta_function.tcc:
-
-/usr/include/bits/types/__fpos_t.h:
-
-/usr/include/asm/unistd_64.h:
-
-/usr/include/bits/long-double.h:
-
-/usr/include/bits/endian.h:
-
-/usr/include/c++/15.1.1/bits/stl_iterator.h:
 
 /usr/include/bits/stdint-intn.h:
 
 /usr/include/bits/types/clockid_t.h:
-
-/usr/include/c++/15.1.1/bits/hash_bytes.h:
-
-CMakeFiles/AI.dir/src/optimizer.cpp.o:
 
 /usr/include/c++/15.1.1/string_view:
 
@@ -1919,6 +1927,10 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 
 /usr/include/c++/15.1.1/bits/locale_classes.tcc:
 
+/usr/include/c++/15.1.1/bits/locale_facets.h:
+
+/usr/include/c++/15.1.1/bits/streambuf.tcc:
+
 /usr/include/c++/15.1.1/bits/move.h:
 
 /usr/include/c++/15.1.1/bits/nested_exception.h:
@@ -1926,6 +1938,8 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 /usr/include/c++/15.1.1/bits/ostream.h:
 
 /usr/include/c++/15.1.1/bits/ostream.tcc:
+
+include/layer.h:
 
 /usr/include/c++/15.1.1/ext/type_traits.h:
 
@@ -1941,9 +1955,9 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 
 /usr/include/c++/15.1.1/bits/ranges_base.h:
 
-/usr/include/c++/15.1.1/bits/invoke.h:
-
 /usr/include/c++/15.1.1/bits/locale_facets.tcc:
+
+/usr/include/c++/15.1.1/bits/invoke.h:
 
 /usr/include/c++/15.1.1/bits/ranges_cmp.h:
 
@@ -1960,10 +1974,6 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 /usr/include/bits/errno.h:
 
 /usr/include/c++/15.1.1/bits/requires_hosted.h:
-
-/usr/include/c++/15.1.1/bits/stl_tempbuf.h:
-
-/usr/include/c++/15.1.1/bits/shared_ptr_atomic.h:
 
 /usr/include/c++/15.1.1/compare:
 
@@ -1993,17 +2003,23 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/c++locale.h:
 
+/usr/include/c++/15.1.1/bits/shared_ptr_atomic.h:
+
+/usr/include/c++/15.1.1/bits/stl_tempbuf.h:
+
 /usr/include/c++/15.1.1/bits/stl_uninitialized.h:
 
 /usr/include/asm-generic/bitsperlong.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/crtbeginS.o:
-
 /usr/include/asm-generic/types.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/crtbeginS.o:
 
 /usr/include/c++/15.1.1/bits/stringfwd.h:
 
 /usr/include/c++/15.1.1/bits/unique_ptr.h:
+
+/usr/include/c++/15.1.1/bits/uses_allocator.h:
 
 /usr/include/c++/15.1.1/bits/utility.h:
 
@@ -2016,6 +2032,8 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/atomic_word.h:
 
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/cpu_defines.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include/mmintrin.h:
 
 /usr/include/c++/15.1.1/climits:
 
@@ -2055,10 +2073,6 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 
 /usr/include/c++/15.1.1/typeinfo:
 
-/usr/include/gnu/stubs-64.h:
-
-/usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/ctype_base.h:
-
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/ctype_inline.h:
 
 /usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/gthr.h:
@@ -2078,3 +2092,7 @@ CMakeFiles/AI.dir/src/optimizer.cpp.o:
 /usr/include/errno.h:
 
 /usr/include/features-time64.h:
+
+/usr/include/c++/15.1.1/x86_64-pc-linux-gnu/bits/ctype_base.h:
+
+/usr/include/gnu/stubs-64.h:

@@ -192,5 +192,4 @@ CMakeFiles/AI.dir/main.cpp.o: \
  /usr/include/c++/15.1.1/bits/vector.tcc \
  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/layer.h \
  /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/optimizer.h \
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/loss.h \
- /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/debug.h
+ /home/eric/Documents/AI_FRAMEWORK/NN/C++/include/loss.h

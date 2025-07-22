@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -march=native -g -Wl,--dependency-file=CMakeFiles/AI.dir/link.d CMakeFiles/AI.dir/src/tensor.cpp.o CMakeFiles/AI.dir/src/loss.cpp.o CMakeFiles/AI.dir/src/layer.cpp.o CMakeFiles/AI.dir/src/optimizer.cpp.o CMakeFiles/AI.dir/main.cpp.o -o AI
