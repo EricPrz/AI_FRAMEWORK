@@ -1,49 +1,59 @@
 #include <iostream>
+#include <memory>
 #include "tensor.h"
 #include "layer.h"
 #include "optimizer.h"
 #include "loss.h"
 
+int batch_size = 1;
+int epochs = 5;
+
 int main() {
-    int input_shape[] = {1, 28*28};
-    Tensor* input = Tensor::randoms(input_shape, 2, 0, 0.4);
+    std::cout << "Hello World!" << std::endl;
 
-    Linear* lin1 = new Linear(28*28, 28*28);
-    Linear* lin2 = new Linear(28*28, 10);
+    int input_shape[] = {batch_size, 28 * 28};
+    auto input = Tensor::randoms(input_shape, 2, 0.0f, 0.4f);
 
-    std::vector<std::vector<Tensor*>> params = {{lin1->weights, lin1->bias}, {lin2->weights, lin2->bias}};
-    SGD* optimizer = new SGD(params, 0.001); // Learning rate = 0.01
-    CrossEntropy* loss_fn = new CrossEntropy();
+    auto lin1 = std::make_shared<Linear>(28 * 28, 28 * 28);
+    auto lin2 = std::make_shared<Linear>(28 * 28, 10);
 
-    int out_shape[] = {1, 10};
-    
+    std::vector<std::vector<std::shared_ptr<Tensor>>> params = {
+        {lin1->weights, lin1->bias},
+        {lin2->weights, lin2->bias}
+    };
 
-    for (int i = 0; i<5; i++){
-        // Tensor* output = lin1->forward(input);
-        Tensor* l1 = lin1->forward(input);
-        Tensor* output = lin2->forward(l1);
+    auto optimizer = std::make_shared<SGD>(params, 0.001f); // Learning rate
+    auto loss_fn = std::make_shared<CrossEntropy>();
 
-        Tensor* label = Tensor::zeros(out_shape, 2);
-        label->data[4] = 1;
+    int out_shape[] = {batch_size, 10};
 
-        Tensor* loss = loss_fn->compute(output, label);
-        std::cout << "Loss: ";
-        loss->print();
-        std::cout << std::endl;
-
-        loss->backward();
+    for (int j = 1; j <= epochs; j++){
         
-        std::cout << "Output: ";
-        output->print();
-        std::cout << std::endl;
+        std::cout << "Epoch " << j << ":" << std::endl;
 
-        optimizer->step();
+        for (int i = 0; i < 60000; ++i) {
+            auto l1 = lin1->forward(input);
+            auto output = lin2->forward(l1);
+
+            auto label = Tensor::zeros(out_shape, 2);
+            label->data[4] = 1.0f;
+
+            auto loss = loss_fn->compute(output, label);
+
+            if (i % 1000 == 0){
+        
+                std::cout << "Loss: ";
+                loss->print();
+
+                loss->backward();
+
+                std::cout << "Output: ";
+                output->print();
+            }
+
+            optimizer->step();
+        }
     }
-
-    delete input;
-    delete lin1;
-    delete optimizer;
 
     return 0;
 }
-

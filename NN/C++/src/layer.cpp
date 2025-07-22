@@ -1,16 +1,8 @@
-// layer.cpp
 #include "layer.h"
 
-Layer::Layer() {
-    parameters = nullptr;
-}
-
-Layer::~Layer() {}
-
-Linear::Linear(int in_features, int out_features, bool bias) {
-    this->hasBias = bias;
+Linear::Linear(int in_features, int out_features, bool bias) : hasBias(bias) {
     int weightShape[2] = {in_features, out_features};
-    this->weights = Tensor::randoms(weightShape, 2, -0.5, 0.5);
+    this->weights = Tensor::randoms(weightShape, 2, -0.5f, 0.5f);
 
     if (bias) {
         int biasShape[2] = {1, out_features};
@@ -20,15 +12,13 @@ Linear::Linear(int in_features, int out_features, bool bias) {
     }
 }
 
-Linear::~Linear() {
-    delete weights;
-    if (bias != nullptr) delete bias;
-}
+std::shared_ptr<Tensor> Linear::forward(std::shared_ptr<Tensor> input) {
+    // matmul returns a shared_ptr<Tensor>
+    auto out = input->matmul(this->weights);
 
-Tensor* Linear::forward(Tensor* input) {
-    Tensor* out = input->matmul(this->weights);
     if (this->hasBias && this->bias != nullptr) {
-        out = *out + this->bias;
+        out = *out + this->bias;  // operator+ returns shared_ptr<Tensor>
     }
+
     return out;
 }

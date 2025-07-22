@@ -1,26 +1,27 @@
-// layer.h
 #pragma once
 
+#include <memory>
 #include "tensor.h"  // We need Tensor for parameters and inputs.
 
 class Layer {
 public:
-    Tensor* parameters;
+    // Could be a vector if layer has multiple parameters, but keep as is if single tensor
+    std::shared_ptr<Tensor> parameters;
 
-    Layer();
-    virtual ~Layer();
+    Layer() = default;
+    virtual ~Layer() = default;
 
-    virtual Tensor* forward(Tensor* input) = 0; // pure virtual (forces subclasses to implement)
+    virtual std::shared_ptr<Tensor> forward(std::shared_ptr<Tensor> input) = 0; // pure virtual
 };
 
 class Linear : public Layer {
 public:
     bool hasBias;
-    Tensor* bias;
-    Tensor* weights;
+    std::shared_ptr<Tensor> bias;
+    std::shared_ptr<Tensor> weights;
 
     Linear(int in_features, int out_features, bool bias = true);
-    ~Linear();
+    ~Linear() override = default;
 
-    Tensor* forward(Tensor* input) override;
+    std::shared_ptr<Tensor> forward(std::shared_ptr<Tensor> input) override;
 };

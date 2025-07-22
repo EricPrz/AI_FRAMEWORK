@@ -1,31 +1,31 @@
-// loss.h
 #pragma once
 
+#include <memory>
 #include "tensor.h"  // We need Tensor for parameters
 
-
-class Loss{
+class Loss {
 public:
-    Tensor* loss;
-    Loss();
+    std::shared_ptr<Tensor> loss;
 
-    virtual ~Loss();
+    Loss() = default;
+    virtual ~Loss() = default;
 
-    virtual Tensor* compute(Tensor* x, Tensor* y) = 0; // pure virtual (forces subclass to implement)
+    // Pure virtual method to compute loss between prediction x and target y
+    virtual std::shared_ptr<Tensor> compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) = 0;
 };
 
 class MSE : public Loss {
 public:
-    MSE();
-    ~MSE();
+    MSE() = default;
+    ~MSE() override = default;
 
-    Tensor* compute(Tensor* x, Tensor* y);
+    std::shared_ptr<Tensor> compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) override;
 };
 
 class CrossEntropy : public Loss {
 public:
-    CrossEntropy();
-    ~CrossEntropy();
+    CrossEntropy() = default;
+    ~CrossEntropy() override = default;
 
-    Tensor* compute(Tensor* x, Tensor* y);
+    std::shared_ptr<Tensor> compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) override;
 };

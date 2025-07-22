@@ -1,41 +1,43 @@
 // tensor.h
 #pragma once
 
+#include <memory>
 #include <iostream>
 #include <vector>
 #include <string>
 
-class Tensor {
+class Tensor : public std::enable_shared_from_this<Tensor> {
   public:
-    float *data;
+    std::shared_ptr<float[]> data;
     int id;
-    Tensor *gradient;
-    int *shape;
+    std::shared_ptr<Tensor> gradient;
+    std::shared_ptr<int[]> shape;
     int dims;
     int size;
     bool requires_grad;
     std::string creation_op;
-    Tensor *creator_a;
-    Tensor *creator_b;
-    Tensor(float *dataPtr, int shape[], int dims, bool requires_grad = true);
+    std::shared_ptr<Tensor> creator_a;
+    std::shared_ptr<Tensor> creator_b;
+    
+    Tensor(std::shared_ptr<float[]> dataPtr, int shape[], int dims, bool requires_grad = true);
     ~Tensor();
 
-    Tensor *matmul(Tensor *other);
-    Tensor *operator+(Tensor *other);
-    Tensor *operator-();
-    Tensor *operator-(Tensor *other);
-    Tensor *operator*(Tensor *other);
-    Tensor *transpose();
-    Tensor *power(float* power);
-    Tensor *softmax();
+    std::shared_ptr<Tensor> matmul(std::shared_ptr<Tensor> other);
+    std::shared_ptr<Tensor> operator+(std::shared_ptr<Tensor> other);
+    std::shared_ptr<Tensor> operator-();
+    std::shared_ptr<Tensor> operator-(std::shared_ptr<Tensor> other);
+    std::shared_ptr<Tensor> operator*(std::shared_ptr<Tensor> other);
+    std::shared_ptr<Tensor> transpose();
+    std::shared_ptr<Tensor> power(std::shared_ptr<float> power);
+    std::shared_ptr<Tensor> softmax();
     
-    void set_creator(Tensor *a, Tensor *b, std::string op);
+    void set_creator(std::shared_ptr<Tensor> a, std::shared_ptr<Tensor> b, const std::string& op);
     void backward();
     
     void print();
     
     
-    static Tensor* zeros(int shape[], int dims);
-    static Tensor* ones(int shape[], int dims);
-    static Tensor* randoms(int shape[], int dims, float min = -1.0f, float max = 1.0f);
+    static std::shared_ptr<Tensor> zeros(int shape[], int dims);
+    static std::shared_ptr<Tensor> ones(int shape[], int dims);
+    static std::shared_ptr<Tensor> randoms(int shape[], int dims, float min = -1.0f, float max = 1.0f);
 };

@@ -1,56 +1,35 @@
-// loss.cpp
 #include "loss.h"
-#include <numeric>
+#include "tensor.h"
 #include <cmath>
-#include <iostream>
+#include <memory>
 
-Loss::Loss() {
-    loss = nullptr;
+std::shared_ptr<Tensor> MSE::compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) {
+    // Compute (x - y)^2
+    loss = (*x - y);
+    auto power_val = std::make_shared<float>(2.0f);
+    loss = loss->power(power_val);
+    return loss;
 }
 
-Loss::~Loss() {}
-
-MSE::MSE() : Loss() {
-    loss = nullptr;
-}
-
-MSE::~MSE(){}
-
-Tensor* MSE::compute(Tensor* x, Tensor* y) {
-    loss = *x - y;
-    float* pow = new float;
-    *pow = 2;
-    loss = loss->power(pow);
-    return loss; 
-}
-
-
-
-CrossEntropy::CrossEntropy() : Loss() {
-    loss = nullptr;
-}
-
-CrossEntropy::~CrossEntropy(){}
-
-Tensor* CrossEntropy::compute(Tensor* x, Tensor* y) {
-    Tensor *softmax = x->softmax();
+std::shared_ptr<Tensor> CrossEntropy::compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) {
+    auto softmax = x->softmax();
 
     loss = *softmax - y;
 
-    float* log = new float[1];
-    log[0] = 0;
-    for (int i = 0; i < softmax->size; i++){
-        log[0] -= y->data[i] * std::log(softmax->data[i]); 
+    std::shared_ptr<float[]> log(new float[1]);
+
+    log[0] = 0.0f;
+    
+    for (int i = 0; i < softmax->size; i++) {
+        // Add a small epsilon to avoid log(0)
+        float val = softmax->data[i] > 1e-12f ? softmax->data[i] : 1e-12f;
+        log[0] -= y->data[i] * std::log(val);
     }
 
-    int *shape = new int[1];
-    shape[0] = 1;
+    int shape[1] = {1};
 
-    Tensor* crossentropyloss = new Tensor(log, shape, 1, x->requires_grad);
-    crossentropyloss->set_creator(softmax, y, "crossentropy");
+    auto cross_entropy_loss = std::make_shared<Tensor>(log, shape, 1, x->requires_grad);
+    cross_entropy_loss->set_creator(softmax, y, "crossentropy");
 
-    return crossentropyloss;
-
+    return cross_entropy_loss;
 }
-
-
