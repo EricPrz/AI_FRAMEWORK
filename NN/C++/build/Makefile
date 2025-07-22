@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named TensorFlowLiteClone
+# Target rules for targets named AI
 
 # Build rule for target.
-TensorFlowLiteClone: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 TensorFlowLiteClone
-.PHONY : TensorFlowLiteClone
+AI: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 AI
+.PHONY : AI
 
 # fast build rule for target.
-TensorFlowLiteClone/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/build
-.PHONY : TensorFlowLiteClone/fast
+AI/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/build
+.PHONY : AI/fast
 
 main.o: main.cpp.o
 .PHONY : main.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -142,7 +142,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -150,7 +150,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 src/layer.o: src/layer.cpp.o
@@ -158,7 +158,7 @@ src/layer.o: src/layer.cpp.o
 
 # target to build an object file
 src/layer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/layer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/layer.cpp.o
 .PHONY : src/layer.cpp.o
 
 src/layer.i: src/layer.cpp.i
@@ -166,7 +166,7 @@ src/layer.i: src/layer.cpp.i
 
 # target to preprocess a source file
 src/layer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/layer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/layer.cpp.i
 .PHONY : src/layer.cpp.i
 
 src/layer.s: src/layer.cpp.s
@@ -174,7 +174,7 @@ src/layer.s: src/layer.cpp.s
 
 # target to generate assembly for a file
 src/layer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/layer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/layer.cpp.s
 .PHONY : src/layer.cpp.s
 
 src/loss.o: src/loss.cpp.o
@@ -182,7 +182,7 @@ src/loss.o: src/loss.cpp.o
 
 # target to build an object file
 src/loss.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/loss.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/loss.cpp.o
 .PHONY : src/loss.cpp.o
 
 src/loss.i: src/loss.cpp.i
@@ -190,7 +190,7 @@ src/loss.i: src/loss.cpp.i
 
 # target to preprocess a source file
 src/loss.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/loss.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/loss.cpp.i
 .PHONY : src/loss.cpp.i
 
 src/loss.s: src/loss.cpp.s
@@ -198,7 +198,7 @@ src/loss.s: src/loss.cpp.s
 
 # target to generate assembly for a file
 src/loss.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/loss.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/loss.cpp.s
 .PHONY : src/loss.cpp.s
 
 src/optimizer.o: src/optimizer.cpp.o
@@ -206,7 +206,7 @@ src/optimizer.o: src/optimizer.cpp.o
 
 # target to build an object file
 src/optimizer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/optimizer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/optimizer.cpp.o
 .PHONY : src/optimizer.cpp.o
 
 src/optimizer.i: src/optimizer.cpp.i
@@ -214,7 +214,7 @@ src/optimizer.i: src/optimizer.cpp.i
 
 # target to preprocess a source file
 src/optimizer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/optimizer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/optimizer.cpp.i
 .PHONY : src/optimizer.cpp.i
 
 src/optimizer.s: src/optimizer.cpp.s
@@ -222,7 +222,7 @@ src/optimizer.s: src/optimizer.cpp.s
 
 # target to generate assembly for a file
 src/optimizer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/optimizer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/optimizer.cpp.s
 .PHONY : src/optimizer.cpp.s
 
 src/tensor.o: src/tensor.cpp.o
@@ -230,7 +230,7 @@ src/tensor.o: src/tensor.cpp.o
 
 # target to build an object file
 src/tensor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/tensor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/tensor.cpp.o
 .PHONY : src/tensor.cpp.o
 
 src/tensor.i: src/tensor.cpp.i
@@ -238,7 +238,7 @@ src/tensor.i: src/tensor.cpp.i
 
 # target to preprocess a source file
 src/tensor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/tensor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/tensor.cpp.i
 .PHONY : src/tensor.cpp.i
 
 src/tensor.s: src/tensor.cpp.s
@@ -246,7 +246,7 @@ src/tensor.s: src/tensor.cpp.s
 
 # target to generate assembly for a file
 src/tensor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/src/tensor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/src/tensor.cpp.s
 .PHONY : src/tensor.cpp.s
 
 # Help Target
@@ -257,7 +257,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... TensorFlowLiteClone"
+	@echo "... AI"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

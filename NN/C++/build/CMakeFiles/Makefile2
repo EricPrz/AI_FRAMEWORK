@@ -63,11 +63,11 @@ CMAKE_BINARY_DIR = /home/eric/Documents/AI_FRAMEWORK/NN/C++/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/TensorFlowLiteClone.dir/all
+all: CMakeFiles/AI.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
-codegen: CMakeFiles/TensorFlowLiteClone.dir/codegen
+codegen: CMakeFiles/AI.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -75,40 +75,40 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/TensorFlowLiteClone.dir/clean
+clean: CMakeFiles/AI.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/TensorFlowLiteClone.dir
+# Target rules for target CMakeFiles/AI.dir
 
 # All Build rule for target.
-CMakeFiles/TensorFlowLiteClone.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target TensorFlowLiteClone"
-.PHONY : CMakeFiles/TensorFlowLiteClone.dir/all
+CMakeFiles/AI.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target AI"
+.PHONY : CMakeFiles/AI.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/TensorFlowLiteClone.dir/rule: cmake_check_build_system
+CMakeFiles/AI.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles 6
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/TensorFlowLiteClone.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/AI.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles 0
-.PHONY : CMakeFiles/TensorFlowLiteClone.dir/rule
+.PHONY : CMakeFiles/AI.dir/rule
 
 # Convenience name for target.
-TensorFlowLiteClone: CMakeFiles/TensorFlowLiteClone.dir/rule
-.PHONY : TensorFlowLiteClone
+AI: CMakeFiles/AI.dir/rule
+.PHONY : AI
 
 # codegen rule for target.
-CMakeFiles/TensorFlowLiteClone.dir/codegen:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Finished codegen for target TensorFlowLiteClone"
-.PHONY : CMakeFiles/TensorFlowLiteClone.dir/codegen
+CMakeFiles/AI.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/eric/Documents/AI_FRAMEWORK/NN/C++/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Finished codegen for target AI"
+.PHONY : CMakeFiles/AI.dir/codegen
 
 # clean rule for target.
-CMakeFiles/TensorFlowLiteClone.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TensorFlowLiteClone.dir/build.make CMakeFiles/TensorFlowLiteClone.dir/clean
-.PHONY : CMakeFiles/TensorFlowLiteClone.dir/clean
+CMakeFiles/AI.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/AI.dir/build.make CMakeFiles/AI.dir/clean
+.PHONY : CMakeFiles/AI.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
