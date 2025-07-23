@@ -5,11 +5,15 @@
 #include "optimizer.h"
 #include "loss.h"
 
+#define DEBUG 0
+
 int batch_size = 1;
 int epochs = 5;
 
 int main() {
-    std::cout << "Hello World!" << std::endl;
+    if (DEBUG){
+        std::cout << "Debugging..." << std::endl;
+    }
 
     int input_shape[] = {batch_size, 28 * 28};
     auto input = Tensor::randoms(input_shape, 2, 0.0f, 0.4f);
@@ -28,30 +32,49 @@ int main() {
     int out_shape[] = {batch_size, 10};
 
     for (int j = 1; j <= epochs; j++){
-        
+
         std::cout << "Epoch " << j << ":" << std::endl;
 
         for (int i = 0; i < 60000; ++i) {
             auto l1 = lin1->forward(input);
             auto output = lin2->forward(l1);
 
+            if (DEBUG){
+                std::cout << "Prediction Computed" << std::endl;
+            }
+
             auto label = Tensor::zeros(out_shape, 2);
             label->data[4] = 1.0f;
 
             auto loss = loss_fn->compute(output, label);
 
+            if (DEBUG){
+                std::cout << "Loss Computed" << std::endl;
+            }
+
+
             if (i % 1000 == 0){
-        
+
                 std::cout << "Loss: ";
                 loss->print();
 
                 loss->backward();
+
+                if (DEBUG){
+                    std::cout << "Backwarded" << std::endl;
+                }
+
 
                 std::cout << "Output: ";
                 output->print();
             }
 
             optimizer->step();
+
+            if (DEBUG){
+                std::cout << "Optim Step Computed" << std::endl;
+            }
+
         }
     }
 

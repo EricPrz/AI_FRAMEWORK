@@ -23,6 +23,8 @@ class Tensor : public std::enable_shared_from_this<Tensor> {
     ~Tensor();
 
     std::shared_ptr<Tensor> matmul(std::shared_ptr<Tensor> other);
+    std::shared_ptr<Tensor> expand_to(std::shared_ptr<Tensor> other);
+    std::shared_ptr<Tensor> reduce_to(std::shared_ptr<Tensor> other);
     std::shared_ptr<Tensor> operator+(std::shared_ptr<Tensor> other);
     std::shared_ptr<Tensor> operator-();
     std::shared_ptr<Tensor> operator-(std::shared_ptr<Tensor> other);

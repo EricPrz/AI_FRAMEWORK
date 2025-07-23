@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <cmath>
+#include <type_traits>
 
 Tensor::Tensor(std::shared_ptr<float[]> dataPtr, int shape[], int dims, bool requires_grad) {
     this->size = 1;
@@ -46,6 +47,55 @@ std::shared_ptr<Tensor> Tensor::matmul(std::shared_ptr<Tensor> other) {
     std::shared_ptr<int[]> newShape(new int[2]{m, p});
     auto tns = std::make_shared<Tensor>(result, newShape.get(), 2, this->requires_grad || other->requires_grad);
     tns->set_creator(shared_from_this(), other, "matmul");
+    return tns;
+}
+
+std::shared_ptr<Tensor> Tensor::expand_to(std::shared_ptr<Tensor> other) {
+    if (other->size % this->size != 0) {
+        throw std::runtime_error("Invalid size to expand");
+    }
+    
+    std::shared_ptr<float[]> result(new float[other->size]());
+    for (int i = 0; i < other->size; i++){
+        result[i] = this->data[i % this->size];
+    }
+
+    int dims = other->dims;  // assuming you have this
+
+    auto newShape = std::shared_ptr<int[]>(new int[dims], std::default_delete<int[]>());
+
+    for (int i = 0; i < dims; ++i) {
+        newShape[i] = other->shape[i];
+    }
+
+    auto tns = std::make_shared<Tensor>(result, newShape.get(), other->dims, this->requires_grad || other->requires_grad);
+    tns->set_creator(shared_from_this(), other, "expand_to");
+    return tns;
+}
+
+std::shared_ptr<Tensor> Tensor::reduce_to(std::shared_ptr<Tensor> other) {
+    if (this->size % other->size != 0) {
+        throw std::runtime_error("Invalid size to reduce to");
+    }
+    
+    std::shared_ptr<float[]> result(new float[other->size]());
+    // Initialize to zero
+    for (int i = 0; i < other->size; i++){
+        result[i] = 0;
+    }
+
+    for (int i = 0; i < this->size; i++){
+        result[i % other->size] += this->data[i];
+    }
+
+    int dims = other->dims;  // assuming you have this
+    auto newShape = std::shared_ptr<int[]>(new int[dims], std::default_delete<int[]>());
+    for (int i = 0; i < dims; ++i) {
+        newShape[i] = other->shape[i];
+    }
+
+    auto tns = std::make_shared<Tensor>(result, newShape.get(), other->dims, this->requires_grad || other->requires_grad);
+    tns->set_creator(shared_from_this(), other, "reduce_to");
     return tns;
 }
 
@@ -300,6 +350,14 @@ void Tensor::backward() {
                 this->creator_a->creator_a->gradient = *this->creator_a - this->creator_b;
                 this->creator_a->creator_a->backward();
             }
+        }
+        else if (creation_op == "expand_to"){
+            std::cout << "nice" << std::endl;
+            this->creator_a->gradient = this->gradient->reduce_to(this->creator_a); 
+            // this->creator_a->backward();
+        }
+        else if (creation_op == "reduce_to"){
+
         }
     }
 }
