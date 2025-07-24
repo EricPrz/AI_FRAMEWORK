@@ -24,7 +24,9 @@ public:
 
 class CrossEntropy : public Loss {
 public:
-    CrossEntropy() = default;
+    int axis;
+    CrossEntropy();
+    CrossEntropy(int axis);
     ~CrossEntropy() override = default;
 
     std::shared_ptr<Tensor> compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) override;

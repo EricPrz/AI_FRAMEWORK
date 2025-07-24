@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <vector>
 #include "tensor.h"
 #include "layer.h"
 #include "optimizer.h"
@@ -7,7 +8,8 @@
 
 #define DEBUG 0
 
-int batch_size = 1;
+int dataset_size = 60000;
+int batch_size = 64;
 int epochs = 5;
 
 int main() {
@@ -15,8 +17,10 @@ int main() {
         std::cout << "Debugging..." << std::endl;
     }
 
-    int input_shape[] = {batch_size, 28 * 28};
-    auto input = Tensor::randoms(input_shape, 2, 0.0f, 0.4f);
+    std::vector<int> input_shape = {batch_size, 28 * 28};
+    std::vector<int> out_shape = {batch_size, 10};
+
+    auto input = Tensor::randoms(input_shape, 0.0f, 0.4f);
 
     auto lin1 = std::make_shared<Linear>(28 * 28, 28 * 28);
     auto lin2 = std::make_shared<Linear>(28 * 28, 10);
@@ -27,15 +31,14 @@ int main() {
     };
 
     auto optimizer = std::make_shared<SGD>(params, 0.001f); // Learning rate
-    auto loss_fn = std::make_shared<CrossEntropy>();
+    auto loss_fn = std::make_shared<CrossEntropy>(1);
 
-    int out_shape[] = {batch_size, 10};
 
     for (int j = 1; j <= epochs; j++){
 
         std::cout << "Epoch " << j << ":" << std::endl;
 
-        for (int i = 0; i < 60000; ++i) {
+        for (int i = 0; i < dataset_size / batch_size; ++i) {
             auto l1 = lin1->forward(input);
             auto output = lin2->forward(l1);
 
@@ -43,7 +46,7 @@ int main() {
                 std::cout << "Prediction Computed" << std::endl;
             }
 
-            auto label = Tensor::zeros(out_shape, 2);
+            auto label = Tensor::zeros(out_shape);
             label->data[4] = 1.0f;
 
             auto loss = loss_fn->compute(output, label);
@@ -53,7 +56,7 @@ int main() {
             }
 
 
-            if (i % 1000 == 0){
+            if (i % (dataset_size / batch_size / 10) == 0){
 
                 std::cout << "Loss: ";
                 loss->print();
@@ -62,11 +65,9 @@ int main() {
 
                 if (DEBUG){
                     std::cout << "Backwarded" << std::endl;
-                }
-
-
-                std::cout << "Output: ";
-                output->print();
+                    std::cout << "Output: ";
+                    output->print();
+                }                
             }
 
             optimizer->step();

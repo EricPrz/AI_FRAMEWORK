@@ -6,34 +6,37 @@
 #include <memory>
 #include <cmath>
 #include <type_traits>
+#include <vector>
 
-Tensor::Tensor(std::shared_ptr<float[]> dataPtr, int shape[], int dims, bool requires_grad) {
-    this->size = 1;
-    this->dims = dims;
-    this->shape = std::shared_ptr<int[]>(new int[dims], std::default_delete<int[]>());
-    for (int i = 0; i < dims; i++) {
-        this->size *= shape[i];
-        this->shape[i] = shape[i];
-    }
+Tensor::Tensor(std::shared_ptr<float[]> dataPtr, std::shared_ptr<std::vector<int>> shape, bool requires_grad) {
+    this->shape = shape;
     this->data = dataPtr;
     this->gradient = nullptr;
     this->requires_grad = requires_grad;
     this->creator_a = nullptr;
     this->creator_b = nullptr;
     this->creation_op = "";
+    this->creation_op_arg = 0;
+    this->dims = 0;
+    this->size = 1;
+    for (int i = 0; i < shape->size(); i++){
+        size *= shape->at(i);
+        dims += 1;
+    }
+
 }
 
 Tensor::~Tensor() {
 }
 
 std::shared_ptr<Tensor> Tensor::matmul(std::shared_ptr<Tensor> other) {
-    if (this->dims != 2 || other->dims != 2 || this->shape[1] != other->shape[0]) {
+    if (this->dims != 2 || other->dims != 2 || this->shape->at(1) != other->shape->at(0)) {
         throw std::runtime_error("Invalid shapes for matmul");
     }
     
-    int m = this->shape[0];
-    int n = this->shape[1];
-    int p = other->shape[1];
+    int m = this->shape->at(0);
+    int n = this->shape->at(1);
+    int p = other->shape->at(1);
 
     std::shared_ptr<float[]> result(new float[m * p]());
     for (int i = 0; i < m; i++) {
@@ -44,11 +47,43 @@ std::shared_ptr<Tensor> Tensor::matmul(std::shared_ptr<Tensor> other) {
         }
     }
 
-    std::shared_ptr<int[]> newShape(new int[2]{m, p});
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), 2, this->requires_grad || other->requires_grad);
+    auto newShape = std::make_shared<std::vector<int>>(std::vector<int>{m, p});
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad || other->requires_grad);
     tns->set_creator(shared_from_this(), other, "matmul");
     return tns;
 }
+
+std::shared_ptr<Tensor> Tensor::sum(int axis, bool keepdims){
+
+    int resulting_size = this->size / this->shape->at(axis);
+    int new_dims = this->dims + keepdims - 1;
+
+    // Initialize result array to zero
+    std::shared_ptr<float[]> result(new float[resulting_size]());
+
+    if (axis == 0){
+        for (int i = 0; i < this->size; i++){
+            result[i % this->shape->at(axis)] += this->data[i];
+        }
+    }
+    else if (axis == 1){
+        for (int i = 0; i < this->size; i++){
+            result[i / this->shape->at(axis)] += this->data[i];
+        }
+    }
+
+
+    auto newShape = std::make_shared<std::vector<int>>();
+    for (int i = 0; i < new_dims; i++){
+        bool greater = axis >= i;
+        newShape->push_back(this->shape->at(i + greater));
+    }
+
+    auto tns = std::make_shared<Tensor>(result, newShape, new_dims);
+    tns->set_creator(shared_from_this(), nullptr, "sum", axis);
+    return tns;
+}
+
 
 std::shared_ptr<Tensor> Tensor::expand_to(std::shared_ptr<Tensor> other) {
     if (other->size % this->size != 0) {
@@ -61,14 +96,13 @@ std::shared_ptr<Tensor> Tensor::expand_to(std::shared_ptr<Tensor> other) {
     }
 
     int dims = other->dims;  // assuming you have this
-
-    auto newShape = std::shared_ptr<int[]>(new int[dims], std::default_delete<int[]>());
+    auto newShape = std::make_shared<std::vector<int>>();
 
     for (int i = 0; i < dims; ++i) {
-        newShape[i] = other->shape[i];
+        newShape->push_back(other->shape->at(i));
     }
 
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), other->dims, this->requires_grad || other->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad || other->requires_grad);
     tns->set_creator(shared_from_this(), other, "expand_to");
     return tns;
 }
@@ -89,35 +123,53 @@ std::shared_ptr<Tensor> Tensor::reduce_to(std::shared_ptr<Tensor> other) {
     }
 
     int dims = other->dims;  // assuming you have this
-    auto newShape = std::shared_ptr<int[]>(new int[dims], std::default_delete<int[]>());
+    auto newShape = std::make_shared<std::vector<int>>();
     for (int i = 0; i < dims; ++i) {
-        newShape[i] = other->shape[i];
+        newShape->push_back(other->shape->at(i));
     }
 
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), other->dims, this->requires_grad || other->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad || other->requires_grad);
     tns->set_creator(shared_from_this(), other, "reduce_to");
     return tns;
 }
 
 std::shared_ptr<Tensor> Tensor::operator+(std::shared_ptr<Tensor> other) {
-    
-    if (this->size != other->size) {
-        throw std::runtime_error("Size mismatch in tensor addition");
-    }
-    
-    std::shared_ptr<float[]> result(new float[this->size]);
-    
-    for (int i = 0; i < this->size; i++) {
-        result[i] = this->data[i] + other->data[i];
+    std::shared_ptr<Tensor> a = shared_from_this();
+    std::shared_ptr<Tensor> b = other;
+
+    // Expand tensors if needed
+    if (a->size != b->size) {
+        if (a->size < b->size) {
+            a = a->expand_to(b);
+        } else {
+            b = b->expand_to(a);
+        }
     }
 
-    std::shared_ptr<int[]> newShape(new int[this->dims]);
-    for (int i = 0; i < this->dims; i++) {
-        newShape[i] = this->shape[i];
+    // Safety check after expansion
+    if (a->size != b->size) {
+        throw std::runtime_error("Broadcasting failed: sizes do not match after expansion");
     }
 
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad || other->requires_grad);
-    tns->set_creator(shared_from_this(), other, "add");
+    // Allocate result array
+    std::shared_ptr<float[]> result(new float[a->size], std::default_delete<float[]>());
+
+    // Element-wise addition
+    for (int i = 0; i < a->size; ++i) {
+        result[i] = a->data[i] + b->data[i];
+    }
+
+    // Copy shape from the broadcasted tensor (they now match)
+    auto newShape = std::make_shared<std::vector<int>>();
+    for (int i = 0; i < a->dims; ++i) {
+        newShape->push_back(a->shape->at(i));
+    }
+
+    // Create output tensor
+    auto tns = std::make_shared<Tensor>(result, newShape, a->requires_grad || b->requires_grad);
+
+    // Autograd
+    tns->set_creator(a, b, "add");
     return tns;
 }
 
@@ -128,13 +180,13 @@ std::shared_ptr<Tensor> Tensor::operator-() {
         result[i] = - this->data[i];
     }
 
-    std::shared_ptr<int[]> newShape(new int[this->dims]);
+    auto newShape = std::make_shared<std::vector<int>>();
     for (int i = 0; i < this->dims; i++) {
-        newShape[i] = this->shape[i];
+        newShape->push_back(this->shape->at(i));
     }
 
     // Create a new Tensor shared_ptr using make_shared for exception safety and clarity
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad);
 
     // Set creator for autograd graph (nullptr for creator_b since unary op)
     tns->set_creator(shared_from_this(), nullptr, "subtract");
@@ -149,12 +201,12 @@ std::shared_ptr<Tensor> Tensor::operator-(std::shared_ptr<Tensor> other) {
         result[i] = this->data[i] - other->data[i];
     }
 
-    std::shared_ptr<int[]> newShape(new int[this->dims]);
+    auto newShape = std::make_shared<std::vector<int>>();
     for (int i = 0; i < this->dims; i++) {
-        newShape[i] = this->shape[i];
+        newShape->push_back(this->shape->at(i));
     }
 
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad || other->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad || other->requires_grad);
 
     tns->set_creator(shared_from_this(), other, "subtract");
 
@@ -165,7 +217,7 @@ std::shared_ptr<Tensor> Tensor::operator*(std::shared_ptr<Tensor> other) {
     // Check if shapes match element-wise
     bool shapes_equal = (this->dims == other->dims);
     for (int i = 0; shapes_equal && i < this->dims; i++) {
-        if (this->shape[i] != other->shape[i]) {
+        if (this->shape->at(i) != other->shape->at(i)) {
             shapes_equal = false;
         }
     }
@@ -176,12 +228,12 @@ std::shared_ptr<Tensor> Tensor::operator*(std::shared_ptr<Tensor> other) {
             result[i] = this->data[i] * other->data[i];
         }
 
-        std::shared_ptr<int[]> newShape(new int[this->dims]);
+        auto newShape = std::make_shared<std::vector<int>>();
         for (int i = 0; i < this->dims; i++) {
-            newShape[i] = this->shape[i];
+            newShape->push_back(this->shape->at(i));
         }
 
-        auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad || other->requires_grad);
+        auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad || other->requires_grad);
         tns->set_creator(shared_from_this(), other, "mul");
         return tns;
     } 
@@ -192,12 +244,12 @@ std::shared_ptr<Tensor> Tensor::operator*(std::shared_ptr<Tensor> other) {
             result[i] = this->data[0] * other->data[i];
         }
 
-        std::shared_ptr<int[]> newShape(new int[other->dims]);
+        auto newShape = std::make_shared<std::vector<int>>();
         for (int i = 0; i < other->dims; i++) {
-            newShape[i] = other->shape[i];
+            newShape->push_back(other->shape->at(i));
         }
 
-        auto tns = std::make_shared<Tensor>(result, newShape.get(), other->dims, this->requires_grad || other->requires_grad);
+        auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad || other->requires_grad);
         tns->set_creator(shared_from_this(), other, "mul");
         return tns;
     }
@@ -211,8 +263,8 @@ std::shared_ptr<Tensor> Tensor::transpose() {
         throw std::runtime_error("Transpose only supports 2D tensors.");
     }
 
-    int rows = this->shape[0];
-    int cols = this->shape[1];
+    int rows = this->shape->at(0);
+    int cols = this->shape->at(1);
     std::shared_ptr<float[]> result(new float[this->size]);
 
     for (int i = 0; i < rows; i++) {
@@ -221,11 +273,11 @@ std::shared_ptr<Tensor> Tensor::transpose() {
         }
     }
 
-    auto newShape = std::make_shared<int[]>(2);
-    newShape[0] = cols;
-    newShape[1] = rows;
+    auto newShape = std::make_shared<std::vector<int>>();
+    newShape->push_back(cols);
+    newShape->push_back(rows);
 
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), 2, this->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad);
     tns->set_creator(shared_from_this(), nullptr, "transpose");
 
     return tns;
@@ -235,8 +287,8 @@ std::shared_ptr<Tensor> Tensor::power(std::shared_ptr<float> power) {
     // Allocate result array managed by shared_ptr
     std::shared_ptr<float[]> result(new float[this->size]);
 
-    int rows = this->shape[0];
-    int cols = this->shape[1];
+    int rows = this->shape->at(0);
+    int cols = this->shape->at(1);
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -245,18 +297,18 @@ std::shared_ptr<Tensor> Tensor::power(std::shared_ptr<float> power) {
     }
 
     // Copy shape to a new shared_ptr<int[]>
-    std::shared_ptr<int[]> newShape(new int[this->dims]);
+    auto newShape = std::make_shared<std::vector<int>>();
     for (int i = 0; i < this->dims; i++) {
-        newShape[i] = this->shape[i];
+        newShape->push_back(this->shape->at(i));
     }
 
     // Create the power Tensor argument (scalar)
-    int powerShape[1] = {1};
+    std::vector<int> powerShape = {1};
     std::shared_ptr<float[]> powerData(new float[1]{*power});
-    auto powerTns = std::make_shared<Tensor>(powerData, powerShape, 1);
+    auto powerTns = std::make_shared<Tensor>(powerData, std::make_shared<std::vector<int>>(powerShape), true);
 
     // Create the result tensor with requires_grad = this->requires_grad
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad);
 
     // Set creators for autograd graph
     tns->set_creator(shared_from_this(), powerTns, "power");
@@ -280,13 +332,13 @@ std::shared_ptr<Tensor> Tensor::softmax() {
     }
 
     // Copy shape to new shared_ptr<int[]>
-    std::shared_ptr<int[]> newShape(new int[this->dims]);
+    auto newShape = std::make_shared<std::vector<int>>();
     for (int i = 0; i < this->dims; i++) {
-        newShape[i] = this->shape[i];
+        newShape->push_back(this->shape->at(i));
     }
 
     // Create the new Tensor with requires_grad inherited
-    auto tns = std::make_shared<Tensor>(result, newShape.get(), this->dims, this->requires_grad);
+    auto tns = std::make_shared<Tensor>(result, newShape, this->requires_grad);
 
     // Set creator for autograd graph; second creator nullptr since unary op
     tns->set_creator(shared_from_this(), nullptr, "softmax");
@@ -294,10 +346,44 @@ std::shared_ptr<Tensor> Tensor::softmax() {
     return tns;
 }
 
-void Tensor::set_creator(std::shared_ptr<Tensor> a, std::shared_ptr<Tensor> b, const std::string& op) {
+std::shared_ptr<Tensor> Tensor::softmax(int axis) {
+    // Allocate result array with shared_ptr
+    std::shared_ptr<float[]> result(new float[this->size]);
+    for (int i = 0; i < this->size; i++) {
+        result[i] = std::exp(this->data[i]);
+    }
+
+    auto tensor = std::make_shared<Tensor>(result, this->shape);
+
+    auto sum = tensor->sum(axis, true);
+
+    if (axis == 0){
+        for (int i = 0; i < this->size; i++){
+            result[i] = result[i]/sum->data[i%sum->size];
+        }
+    }
+    else if  (axis == 1){
+        for (int i = 0; i < this->size; i++){
+            result[i] = result[i]/sum->data[i/sum->size];
+        }
+
+    }
+
+    // Create the new Tensor with requires_grad inherited
+    auto tns = std::make_shared<Tensor>(result, this->shape, this->requires_grad);
+
+    // Set creator for autograd graph; second creator nullptr since unary op
+    tns->set_creator(shared_from_this(), nullptr, "softmax");
+
+    return tns;
+}
+
+
+void Tensor::set_creator(std::shared_ptr<Tensor> a, std::shared_ptr<Tensor> b, const std::string& op, int arg) {
     this->creator_a = a;
     this->creator_b = b;
     this->creation_op = op;
+    this->creation_op_arg = arg;
 }
 
 void Tensor::backward() {
@@ -305,9 +391,8 @@ void Tensor::backward() {
 
     // Initialize gradient to ones if it doesn't exist
     if (this->gradient == nullptr) {
-        auto shapeCopy = std::make_shared<int[]>(this->dims);
-        std::memcpy(shapeCopy.get(), this->shape.get(), this->dims * sizeof(int));
-        this->gradient = Tensor::ones(shapeCopy.get(), this->dims);
+        auto shapeCopy = std::make_shared<std::vector<int>>(*this->shape);
+        this->gradient = Tensor::ones(*shapeCopy);
     }
 
 
@@ -352,11 +437,15 @@ void Tensor::backward() {
             }
         }
         else if (creation_op == "expand_to"){
-            std::cout << "nice" << std::endl;
             this->creator_a->gradient = this->gradient->reduce_to(this->creator_a); 
-            // this->creator_a->backward();
+            this->creator_a->backward();
         }
         else if (creation_op == "reduce_to"){
+
+        }
+        else if (creation_op == "sum"){
+            this->creator_a->gradient = this->gradient->expand_to(this->creator_a);
+            this->creator_a->backward();
 
         }
     }
@@ -364,8 +453,8 @@ void Tensor::backward() {
 
 void Tensor::print() {
     if (dims == 2) {
-        int rows = shape[0];
-        int cols = shape[1];
+        int rows = shape->at(0);
+        int cols = shape->at(1);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 std::cout << data[i * cols + j] << " ";
@@ -380,34 +469,46 @@ void Tensor::print() {
     }
 }
 
-std::shared_ptr<Tensor> Tensor::zeros(int shape[], int dims) {
+std::shared_ptr<Tensor> Tensor::zeros(std::vector<int> shape) {
+    int dims = shape.size();
+
     int size = 1;
     for (int i = 0; i < dims; i++) size *= shape[i];
 
     // Use shared_ptr<float[]> to manage the float array
     std::shared_ptr<float[]> arr(new float[size]());
 
+    auto newShape = std::make_shared<std::vector<int>>(shape);
+
     // Use make_shared for Tensor to ensure exception safety
-    return std::make_shared<Tensor>(arr, shape, dims);
+    return std::make_shared<Tensor>(arr, newShape);
 }
 
-std::shared_ptr<Tensor> Tensor::ones(int shape[], int dims) {
+std::shared_ptr<Tensor> Tensor::ones(std::vector<int> shape) {
+    int dims = shape.size();
+
     int size = 1;
     for (int i = 0; i < dims; i++) size *= shape[i];
 
-    // Allocate and initialize with 1.0f
+    // Use shared_ptr<float[]> to manage the float array
     std::shared_ptr<float[]> arr(new float[size]);
-    for (int i = 0; i < size; i++) arr[i] = 1.0f;
+    for (int i = 0; i < size; i++){
+        arr[i] = 1.0f;
+    }
 
-    // Use make_shared for exception safety
-    return std::make_shared<Tensor>(arr, shape, dims);
+    auto newShape = std::make_shared<std::vector<int>>(shape);
+
+    // Use make_shared for Tensor to ensure exception safety
+    return std::make_shared<Tensor>(arr, newShape);
 }
 
-std::shared_ptr<Tensor> Tensor::randoms(int shape[], int dims, float min, float max) {
+std::shared_ptr<Tensor> Tensor::randoms(std::vector<int> shape, float min, float max) {
+    int dims = shape.size();
+
     int size = 1;
     for (int i = 0; i < dims; i++) size *= shape[i];
 
-    // Use shared_ptr with array deleter
+    // Use shared_ptr<float[]> to manage the float array
     std::shared_ptr<float[]> arr(new float[size]);
 
     // Setup random generator
@@ -419,5 +520,8 @@ std::shared_ptr<Tensor> Tensor::randoms(int shape[], int dims, float min, float 
         arr[i] = dist(gen);
     }
 
-    return std::make_shared<Tensor>(arr, shape, dims);
+    auto newShape = std::make_shared<std::vector<int>>(shape);
+
+    // Use make_shared for Tensor to ensure exception safety
+    return std::make_shared<Tensor>(arr, newShape);
 }

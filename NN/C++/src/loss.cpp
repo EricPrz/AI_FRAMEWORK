@@ -11,8 +11,21 @@ std::shared_ptr<Tensor> MSE::compute(const std::shared_ptr<Tensor>& x, const std
     return loss;
 }
 
+CrossEntropy::CrossEntropy(){
+}
+
+CrossEntropy::CrossEntropy(int axis){
+    this->axis = axis;
+}
+
 std::shared_ptr<Tensor> CrossEntropy::compute(const std::shared_ptr<Tensor>& x, const std::shared_ptr<Tensor>& y) {
-    auto softmax = x->softmax();
+    std::shared_ptr<Tensor> softmax;
+    if (this->axis){
+        softmax = x->softmax(this->axis);
+    }
+    else {
+        softmax = x->softmax();
+    }
 
     loss = *softmax - y;
 
@@ -26,9 +39,9 @@ std::shared_ptr<Tensor> CrossEntropy::compute(const std::shared_ptr<Tensor>& x, 
         log[0] -= y->data[i] * std::log(val);
     }
 
-    int shape[1] = {1};
+    std::vector<int> shape = {1};
 
-    auto cross_entropy_loss = std::make_shared<Tensor>(log, shape, 1, x->requires_grad);
+    auto cross_entropy_loss = std::make_shared<Tensor>(log, std::make_shared<std::vector<int>>(shape), x->requires_grad);
     cross_entropy_loss->set_creator(softmax, y, "crossentropy");
 
     return cross_entropy_loss;

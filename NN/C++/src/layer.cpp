@@ -1,12 +1,13 @@
 #include "layer.h"
+#include <vector>
 
 Linear::Linear(int in_features, int out_features, bool bias) : hasBias(bias) {
-    int weightShape[2] = {in_features, out_features};
-    this->weights = Tensor::randoms(weightShape, 2, -0.5f, 0.5f);
+    std::vector<int> weightShape = {in_features, out_features};
+    this->weights = Tensor::randoms(weightShape, -0.5f, 0.5f);
 
     if (bias) {
-        int biasShape[2] = {1, out_features};
-        this->bias = Tensor::zeros(biasShape, 2);
+        std::vector<int> biasShape = {1, out_features};
+        this->bias = Tensor::zeros(biasShape);
     } else {
         this->bias = nullptr;
     }
